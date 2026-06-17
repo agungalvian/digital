@@ -1,0 +1,73 @@
+<% function card(text, cls = 'green') { return '<div class="card '+cls+'">'+text+'</div>'; } %>
+
+<div class="wrapper">
+    <!-- KOMISIONER -->
+    <div class="komisioner">
+        <%- card('Komisioner') %>
+    </div>
+    <div class="line"></div>
+
+    <% if (data && data.komisioner) { %>
+        <% const komisioner = data.komisioner; %>
+
+        <!-- UNIT PENDUKUNG -->
+        <% if (komisioner.unit_pendukung) { %>
+        <div class="row support">
+            <% komisioner.unit_pendukung.forEach(unit => { %>
+                <%- card(unit.nama, 'white') %>
+            <% }) %>
+        </div>
+        <% } %>
+
+        <div class="h-line"></div>
+
+        <!-- UNIT DIBAWAH -->
+        <div class="row-deputi">
+            <% if (komisioner.unit_di_bawah) { %>
+                <% komisioner.unit_di_bawah.forEach(unit => { %>
+                    <% if (unit.jabatan) { %>
+                        <!-- DEPUTI -->
+                        <div class="deputy">
+                            <%- card(unit.jabatan, 'green') %>
+                            <% if (unit.direktorat) { %>
+                                <% unit.direktorat.forEach(direktorat => { %>
+                                    <div class="direktorat">
+                                        <%- card(direktorat.nama, 'blue') %>
+                                        <% if (direktorat.divisi) { %>
+                                            <div class="divisi">
+                                                <% direktorat.divisi.forEach(divisi => { %>
+                                                    <%- card(divisi, 'orange') %>
+                                                <% }) %>
+                                            </div>
+                                        <% } %>
+                                        <% if (direktorat.unit) { %>
+                                            <div class="divisi">
+                                                <% direktorat.unit.forEach(u => { %>
+                                                    <%- card(u, 'white') %>
+                                                <% }) %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <!-- DIREKTORAT LANGSUNG DIBAWAH KOMISIONER -->
+                        <div class="strategis">
+                            <%- card(unit.nama, 'green') %>
+                            <% if (unit.divisi) { %>
+                                <div class="divisi" style="margin-top:15px;">
+                                    <% unit.divisi.forEach(divisi => { %>
+                                        <%- card(divisi, 'orange') %>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                <% }) %>
+            <% } %>
+        </div>
+    <% } else { %>
+        <p style="text-align:center;">Data Organisasi belum tersedia.</p>
+    <% } %>
+</div>

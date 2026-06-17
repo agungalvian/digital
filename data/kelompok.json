@@ -1,0 +1,182 @@
+[
+  {
+    "id": "k1_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.001",
+    "nama_kelompok": "Perkumpulan",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k2_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.002",
+    "nama_kelompok": "Simulasi Pemodelan",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k3_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.003",
+    "nama_kelompok": "Sumber Analisa Pemodelan GIS",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k4_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.004",
+    "nama_kelompok": "Sumber Analisa Pemodelan BIM",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k5_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.005",
+    "nama_kelompok": "Dokumen Teknis Perizinan",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k6_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.006",
+    "nama_kelompok": "Proses Persetujuan",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k7_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.007",
+    "nama_kelompok": "Skema Program Rumah",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k8_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.008",
+    "nama_kelompok": "Skema Program Kawasan Perumahan",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k9_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.009",
+    "nama_kelompok": "Material dan Jasa",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k10_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.010",
+    "nama_kelompok": "Listrik & Air",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k11_A",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "A",
+    "nama_pilar": "SUPPLY",
+    "kode_kelompok": "A.011",
+    "nama_kelompok": "Manajemen Properti",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k1_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.001",
+    "nama_kelompok": "Dana Pemerintah Pusat",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k2_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.002",
+    "nama_kelompok": "Dana Pemerintah Provinsi",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k3_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.003",
+    "nama_kelompok": "Dana Pemerintah Kab-Kota",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k4_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.004",
+    "nama_kelompok": "Dana Kemitraan Komersil",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k5_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.005",
+    "nama_kelompok": "Dana Kemitraan Flantropi",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k6_B",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "B",
+    "nama_pilar": "PROGRAM",
+    "kode_kelompok": "B.006",
+    "nama_kelompok": "Dana Kemitraan Komunitas",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k1_C",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "C",
+    "nama_pilar": "DEMAND",
+    "kode_kelompok": "C.001",
+    "nama_kelompok": "RIISD",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k2_C",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "C",
+    "nama_pilar": "DEMAND",
+    "kode_kelompok": "C.002",
+    "nama_kelompok": "PENGELOLAAN DEMAND",
+    "keterangan_kelompok": ""
+  },
+  {
+    "id": "k1_D",
+    "cdate": "2026-06-14 02:19:52",
+    "kode_pilar": "D",
+    "nama_pilar": "LITERASI",
+    "kode_kelompok": "D.001",
+    "nama_kelompok": "LITERASI & KOMPETENSI",
+    "keterangan_kelompok": ""
+  }
+]

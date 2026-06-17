@@ -1,0 +1,23 @@
+[
+    {
+        "id": "act_6a3163d3ec773",
+        "nama_aktivitas": "FGD Integrasi Perpajakan",
+        "deskripsi": "persiapan FGD Integrasi Perpajakan",
+        "jenis_kolaborasi": "Kolaborasi",
+        "aspek": [
+            "Perpajakan"
+        ],
+        "output": "API Dokuman",
+        "outcome": "ketepatan sasaran dan KSWP",
+        "unit_internal": "Deputi Komisioner Bidang Pemanfaatan Dana Tapera | Direktorat Kerja Sama dan Kebijakan Pembiayaan",
+        "nama_mitra": "Dirjen Pajak, Kementerian Keuangan",
+        "jenis_mitra": "Pemerintah Pusat",
+        "prediksi_pelaksanaan": "2026-W27",
+        "target_pelaksanaan": "2026-W28",
+        "teknik_integrasi": "RESTful API (JSON)",
+        "pola_integrasi": "Synchronous (Real-time P2P)",
+        "risiko": "Kebocoran Data (Security)",
+        "kontrol": "Autentikasi OAuth 2.0 \/ JWT",
+        "created_at": "2026-06-16 16:55:15"
+    }
+]

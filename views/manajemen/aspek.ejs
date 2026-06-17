@@ -1,0 +1,142 @@
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-tags"></i> Manajemen Aspek</h4>
+    </div>
+
+    <div class="row">
+        <!-- Form Tambah -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah Aspek</h6>
+                </div>
+                <div class="card-body">
+                    <form action="/manajemen/aspek" method="POST">
+                        <input type="hidden" name="action" value="add">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Pilih Pilar</label>
+                            <select name="kode_pilar" id="combo_pilar_m" class="form-select" required>
+                                <option value="">-- Pilih Pilar --</option>
+                                <% pilarList.forEach(p => { %>
+                                    <option value="<%= p.kode_pilar %>"><%= p.kode_pilar %> - <%= p.nama_pilar %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Pilih Kelompok</label>
+                            <select name="kode_kelompok" id="combo_kelompok_m" class="form-select" required disabled>
+                                <option value="">-- Pilih Kelompok --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Kode Aspek</label>
+                            <input type="text" name="kode_aspek" class="form-control" placeholder="Contoh: A.001.001" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Aspek</label>
+                            <input type="text" name="nama_aspek" class="form-control" placeholder="Contoh: Validasi" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Keterangan Aspek</label>
+                            <textarea name="keterangan_aspek" class="form-control" rows="3" placeholder="Penjelasan tentang aspek ini..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info text-white w-100 fw-bold">Simpan Data</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Data -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Daftar Aspek</h6>
+                </div>
+                <div class="card-body table-responsive p-0" style="max-height: 600px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th class="ps-3">Kode Aspek</th>
+                                <th>Kelompok</th>
+                                <th>Pilar</th>
+                                <th>Nama Aspek</th>
+                                <th class="text-end pe-3">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(!data || data.length === 0) { %>
+                                <tr><td colspan="5" class="text-center text-muted py-3">Belum ada aspek.</td></tr>
+                            <% } else { %>
+                                <% data.forEach(row => { %>
+                                    <tr>
+                                        <td class="ps-3"><span class="badge bg-primary"><%= row.kode_aspek %></span></td>
+                                        <td><span class="badge bg-secondary"><%= row.kode_kelompok %></span></td>
+                                        <td><span class="badge bg-dark"><%= row.kode_pilar %></span></td>
+                                        <td class="fw-medium"><%= row.nama_aspek %></td>
+                                        <td class="text-end pe-3">
+                                            <form action="/manajemen/aspek" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus aspek ini?')">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="kode_aspek" value="<%= row.kode_aspek %>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const dataKelompok = <%- JSON.stringify(kelompokList || []) %>;
+    const cmbPilarM = document.getElementById("combo_pilar_m");
+    const cmbKelompokM = document.getElementById("combo_kelompok_m");
+
+    if (cmbPilarM && cmbKelompokM) {
+        cmbPilarM.addEventListener("change", function() {
+            cmbKelompokM.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
+            cmbKelompokM.disabled = true;
+
+            const selectedPilar = this.value;
+            if(selectedPilar && Array.isArray(dataKelompok)) {
+                // Wait, dataKelompok from EJS only has kode_kelompok and nama_kelompok?
+                // Ah, let's fetch it via API instead to get the full list with pilar code, 
+                // OR we can just use the API!
+            }
+        });
+    }
+
+    // Better approach: fetch from /api/data to populate properly
+    fetch('/api/data')
+    .then(res => res.json())
+    .then(data => {
+        cmbPilarM.addEventListener("change", function() {
+            cmbKelompokM.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
+            cmbKelompokM.disabled = true;
+
+            const selectedPilar = this.value;
+            if(selectedPilar && data.kelompok) {
+                const filteredKel = data.kelompok.filter(k => k.kode_pilar === selectedPilar);
+                if(filteredKel.length > 0) {
+                    cmbKelompokM.disabled = false;
+                    filteredKel.forEach(k => {
+                        let opt = new Option(k.kode_kelompok + " - " + k.nama_kelompok, k.kode_kelompok);
+                        cmbKelompokM.add(opt);
+                    });
+                }
+            }
+        });
+    }).catch(err => console.error(err));
+});
+</script>

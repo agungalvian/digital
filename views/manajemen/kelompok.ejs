@@ -1,0 +1,86 @@
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-collection"></i> Manajemen Kelompok</h4>
+    </div>
+
+    <div class="row">
+        <!-- Form Tambah -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah Kelompok</h6>
+                </div>
+                <div class="card-body">
+                    <form action="/manajemen/kelompok" method="POST">
+                        <input type="hidden" name="action" value="add">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Induk Pilar</label>
+                            <select name="kode_pilar" class="form-select" required>
+                                <option value="">-- Pilih Pilar --</option>
+                                <% pilarList.forEach(p => { %>
+                                    <option value="<%= p.kode_pilar %>"><%= p.kode_pilar %> - <%= p.nama_pilar %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Kode Kelompok</label>
+                            <input type="text" name="kode_kelompok" class="form-control" placeholder="Contoh: A.001" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Nama Kelompok</label>
+                            <input type="text" name="nama_kelompok" class="form-control" placeholder="Contoh: Perkumpulan" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100">Simpan Data</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Data -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Daftar Kelompok</h6>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Kode Kelompok</th>
+                                <th>Pilar</th>
+                                <th>Nama Kelompok</th>
+                                <th class="text-end pe-3">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(!data || data.length === 0) { %>
+                                <tr><td colspan="4" class="text-center text-muted py-3">Belum ada kelompok.</td></tr>
+                            <% } else { %>
+                                <% data.forEach(row => { %>
+                                    <tr>
+                                        <td class="ps-3"><span class="badge bg-secondary"><%= row.kode_kelompok %></span></td>
+                                        <td>
+                                            <span class="badge bg-dark"><%= row.kode_pilar %></span>
+                                        </td>
+                                        <td class="fw-medium"><%= row.nama_kelompok %></td>
+                                        <td class="text-end pe-3">
+                                            <form action="/manajemen/kelompok" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus kelompok ini? Data terkait di aspek mungkin akan terpengaruh.')">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="kode_kelompok" value="<%= row.kode_kelompok %>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

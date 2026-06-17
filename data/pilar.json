@@ -1,0 +1,30 @@
+[
+    {
+        "id": "6a2e0a2433818",
+        "cdate": "2026-06-14 03:55:48",
+        "kode_pilar": "A",
+        "nama_pilar": "SUPPLY",
+        "keterangan_pilar": "SUPPLY KETERANGAN"
+    },
+    {
+        "id": "6a2e0c2f9bcf8",
+        "cdate": "2026-06-14 04:04:31",
+        "kode_pilar": "B",
+        "nama_pilar": "PROGRAM",
+        "keterangan_pilar": ""
+    },
+    {
+        "id": "6a2e0c3a063b2",
+        "cdate": "2026-06-14 04:04:42",
+        "kode_pilar": "C",
+        "nama_pilar": "DEMAND",
+        "keterangan_pilar": ""
+    },
+    {
+        "id": "6a2e0c422dba1",
+        "cdate": "2026-06-14 04:04:50",
+        "kode_pilar": "D",
+        "nama_pilar": "LITERASI",
+        "keterangan_pilar": ""
+    }
+]

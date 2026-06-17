@@ -1,0 +1,129 @@
+{
+  "organisasi": "BP Tapera",
+  "komisioner": {
+    "jabatan": "Komisioner",
+    "unit_pendukung": [
+      {
+        "nama": "Penasihat"
+      },
+      {
+        "nama": "Komisi"
+      },
+      {
+        "nama": "Satuan Pengawas Internal"
+      },
+      {
+        "nama": "Dewan Pengawas Syariah"
+      }
+    ],
+    "unit_di_bawah": [
+      {
+        "nama": "Direktorat Perencanaan Strategis, Manajemen Risiko, dan Kerja Sama",
+        "divisi": [
+          "Perencanaan Strategis",
+          "Manajemen Risiko dan Kepatuhan",
+          "Sekretariat dan Komunikasi Badan"
+        ]
+      },
+      {
+        "jabatan": "Deputi Komisioner Bidang Pengerahan Dana Tapera",
+        "direktorat": [
+          {
+            "nama": "Direktorat Kepesertaan",
+            "divisi": [
+              "Layanan Kepesertaan I",
+              "Layanan Kepesertaan II",
+              "Data Kepesertaan"
+            ]
+          },
+          {
+            "nama": "Direktorat Operasi Pengerahan",
+            "divisi": [
+              "Registrasi dan Simpanan dan Pengembalian",
+              "Layanan Contact Center"
+            ]
+          }
+        ]
+      },
+      {
+        "jabatan": "Deputi Komisioner Bidang Pemupukan Dana Tapera",
+        "direktorat": [
+          {
+            "nama": "Direktorat Tresuri dan Investasi",
+            "divisi": [
+              "Pengelolaan Dana Tapera",
+              "Divisi Pengelolaan Aset BP Tapera",
+              "Divisi Pengelolaan Investasi Pemerintah",
+              "Divisi Pengelolaan Sumber Dana Lain"
+            ]
+          },
+          {
+            "nama": "Direktorat Operasi Pemupukan",
+            "divisi": [
+              "Manajemen Kas dan Settlement",
+              "Evaluasi Kinerja Bank Kustodian"
+            ]
+          }
+        ]
+      },
+      {
+        "jabatan": "Deputi Komisioner Bidang Pemanfaatan Dana Tapera",
+        "direktorat": [
+          {
+            "nama": "Direktorat Kerja Sama dan Kebijakan Pembiayaan",
+            "divisi": [
+              "Kerja Sama Mitra dan Stakeholder",
+              "Jaminan Pembiayaan"
+            ]
+          },
+          {
+            "nama": "Direktorat Pemasaran Pembiayaan",
+            "divisi": [
+              "Pemasaran",
+              "Pemasaran II"
+            ]
+          },
+          {
+            "nama": "Direktorat Operasi Pemanfaatan",
+            "divisi": [
+              "Operasi Pembiayaan",
+              "Pemantauan dan Evaluasi"
+            ]
+          }
+        ]
+      },
+      {
+        "jabatan": "Deputi Komisioner Bidang Hukum dan Administrasi",
+        "direktorat": [
+          {
+            "nama": "Direktorat Hukum dan Sumber Daya Manusia",
+            "divisi": [
+              "Hukum",
+              "Sumber Daya Manusia"
+            ]
+          },
+          {
+            "nama": "Direktorat Keuangan dan Umum",
+            "divisi": [
+              "Keuangan",
+              "Pengelolaan Aset Tetap dan Umum"
+            ]
+          },
+          {
+            "nama": "Direktorat Teknologi Informasi",
+            "divisi": [
+              "Manajemen Teknologi Informasi",
+              "Pengembangan Aplikasi",
+              "Operasional Teknologi Informasi",
+              "Keamanan Teknologi Informasi dan Manajemen Data",
+              "Layanan Digital"
+            ],
+            "unit": [
+              "Unit Layanan Pengadaan"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

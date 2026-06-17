@@ -1,0 +1,202 @@
+<style>
+<div class="wrap">
+    <div class="top">
+        <div>
+            <h1>Data Aspek Ekosistem Perumahan</h1>
+            <div>Filter berjenjang dari pilar, kelompok, lalu aspek.</div>
+        </div>
+        <div class="meta">
+            Data tampil<br>
+            <strong id="visibleCount"><%= aspek.length %></strong> dari <%= aspek.length %> aspek
+        </div>
+    </div>
+
+    <div class="panel">
+        <% if (errors && errors.length > 0) { %>
+            <div class="notice">
+                <%= errors.join(' | ') %>
+            </div>
+        <% } %>
+
+        <div class="filters">
+            <div>
+                <label for="pilarFilter">Pilar</label>
+                <select id="pilarFilter">
+                    <option value="">Semua Pilar</option>
+                    <% pilar.forEach(row => { %>
+                        <option value="<%= row.kode_pilar %>">
+                            <%= row.kode_pilar + ' - ' + row.nama_pilar %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div>
+                <label for="kelompokFilter">Kelompok</label>
+                <select id="kelompokFilter">
+                    <option value="">Semua Kelompok</option>
+                    <% kelompok.forEach(row => { %>
+                        <option value="<%= row.kode_kelompok %>" data-pilar="<%= row.kode_pilar %>">
+                            <%= row.kode_kelompok + ' - ' + row.nama_kelompok %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div>
+                <label for="aspekFilter">Aspek</label>
+                <select id="aspekFilter">
+                    <option value="">Semua Aspek</option>
+                    <% aspek.forEach(row => { %>
+                        <option
+                            value="<%= row.kode_aspek %>"
+                            data-pilar="<%= row.kode_pilar %>"
+                            data-kelompok="<%= row.kode_kelompok %>"
+                        >
+                            <%= row.kode_aspek + ' - ' + row.nama_aspek %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div>
+                <label for="searchBox">Cari</label>
+                <input id="searchBox" type="search" placeholder="Cari data...">
+            </div>
+
+            <div>
+                <label>&nbsp;</label>
+                <button type="button" id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <table id="aspekTable">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kode Pilar</th>
+                    <th>Nama Pilar</th>
+                    <th>Kode Kelompok</th>
+                    <th>Nama Kelompok</th>
+                    <th>Kode Aspek</th>
+                    <th>Nama Aspek</th>
+                    <th>Keterangan Aspek</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% aspek.forEach((row, i) => { %>
+                    <tr
+                        data-pilar="<%= row.kode_pilar %>"
+                        data-kelompok="<%= row.kode_kelompok %>"
+                        data-aspek="<%= row.kode_aspek %>"
+                    >
+                        <td><%= i + 1 %></td>
+                        <td class="code"><%= row.kode_pilar %></td>
+                        <% 
+                            let p = pilar.find(x => x.kode_pilar === row.kode_pilar);
+                            let pNama = p ? p.nama_pilar : '';
+                        %>
+                        <td><%= pNama %></td>
+                        <td class="code"><%= row.kode_kelompok %></td>
+                        <% 
+                            let k = kelompok.find(x => x.kode_kelompok === row.kode_kelompok);
+                            let kNama = k ? k.nama_kelompok : '';
+                        %>
+                        <td><%= kNama %></td>
+                        <td class="code"><%= row.kode_aspek %></td>
+                        <td><%= row.nama_aspek %></td>
+                        <td class="desc"><%= row.keterangan_aspek %></td>
+                    </tr>
+                <% }) %>
+                </tbody>
+            </table>
+
+            <% if (aspek.length === 0) { %>
+                <div class="empty">Data Aspek belum tersedia.</div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+const pilarFilter = document.getElementById('pilarFilter');
+const kelompokFilter = document.getElementById('kelompokFilter');
+const aspekFilter = document.getElementById('aspekFilter');
+const searchBox = document.getElementById('searchBox');
+const visibleCount = document.getElementById('visibleCount');
+const rows = Array.from(document.querySelectorAll('#aspekTable tbody tr'));
+const kelompokOptions = Array.from(kelompokFilter.options);
+const aspekOptions = Array.from(aspekFilter.options);
+
+function filterOptions() {
+    const pilar = pilarFilter.value;
+    const kelompok = kelompokFilter.value;
+
+    kelompokOptions.forEach(option => {
+        option.hidden = option.value !== '' && pilar !== '' && option.dataset.pilar !== pilar;
+    });
+
+    if (kelompokFilter.selectedOptions[0] && kelompokFilter.selectedOptions[0].hidden) {
+        kelompokFilter.value = '';
+    }
+
+    aspekOptions.forEach(option => {
+        if (option.value === '') {
+            option.hidden = false;
+            return;
+        }
+
+        const matchPilar = pilar === '' || option.dataset.pilar === pilar;
+        const matchKelompok = kelompokFilter.value === '' || option.dataset.kelompok === kelompokFilter.value;
+        option.hidden = !(matchPilar && matchKelompok);
+    });
+
+    if (aspekFilter.selectedOptions[0] && aspekFilter.selectedOptions[0].hidden) {
+        aspekFilter.value = '';
+    }
+}
+
+function applyFilter() {
+    const pilar = pilarFilter.value;
+    const kelompok = kelompokFilter.value;
+    const aspek = aspekFilter.value;
+    const keyword = searchBox.value.trim().toLowerCase();
+    let count = 0;
+
+    rows.forEach(row => {
+        const visible =
+            (pilar === '' || row.dataset.pilar === pilar) &&
+            (kelompok === '' || row.dataset.kelompok === kelompok) &&
+            (aspek === '' || row.dataset.aspek === aspek) &&
+            (keyword === '' || row.innerText.toLowerCase().includes(keyword));
+
+        row.style.display = visible ? '' : 'none';
+        if (visible) {
+            count++;
+        }
+    });
+
+    visibleCount.textContent = count;
+}
+
+function refresh() {
+    filterOptions();
+    applyFilter();
+}
+
+pilarFilter.addEventListener('change', refresh);
+kelompokFilter.addEventListener('change', refresh);
+aspekFilter.addEventListener('change', applyFilter);
+searchBox.addEventListener('input', applyFilter);
+document.getElementById('resetBtn').addEventListener('click', () => {
+    pilarFilter.value = '';
+    kelompokFilter.value = '';
+    aspekFilter.value = '';
+    searchBox.value = '';
+    refresh();
+});
+
+refresh();
+</script>
+</script>
