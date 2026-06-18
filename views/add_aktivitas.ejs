@@ -1,0 +1,269 @@
+<div class="container-fluid pb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-plus"></i> Tambah Aktivitas Kolaborasi</h4>
+        <a href="/aktivitas" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Kembali ke Daftar</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body bg-white">
+            <form action="/aktivitas" method="POST">
+                <input type="hidden" name="action" value="add">
+                
+                <div class="row g-4">
+                    <!-- Bagian Kiri -->
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">A. Informasi Utama</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">1. Nama Aktivitas Kolaborasi</label>
+                            <input type="text" name="nama_aktivitas" class="form-control" required placeholder="Judul/Nama Kegiatan">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">2. Deskripsi Aktivitas</label>
+                            <textarea name="deskripsi" class="form-control" rows="3" required placeholder="Penjelasan singkat mengenai aktivitas..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">3. Jenis Kolaborasi</label>
+                            <select name="jenis_kolaborasi" class="form-select" required>
+                                <option value="">-- Pilih Jenis --</option>
+                                <option value="Kolaborasi">Kolaborasi</option>
+                                <option value="Non Kolaborasi">Non Kolaborasi</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">5. Output (Keluaran)</label>
+                            <textarea name="output" class="form-control" rows="2" placeholder="Sistem baru, API dokumen, dll..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">6. Outcome (Hasil/Dampak)</label>
+                            <textarea name="outcome" class="form-control" rows="2" placeholder="Efisiensi waktu, peningkatan layanan..."></textarea>
+                        </div>
+
+                        <h6 class="text-primary border-bottom pb-2 mt-4 mb-3">B. Filter Aspek Terkait (Multi-Pilihan)</h6>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Pilih Pilar</label>
+                            <select id="combo_pilar" class="form-select mb-2">
+                                <option value="">-- Pilih Pilar --</option>
+                            </select>
+                            
+                            <label class="form-label text-muted small">Pilih Kelompok</label>
+                            <select id="combo_kelompok" class="form-select mb-2" disabled>
+                                <option value="">-- Pilih Kelompok --</option>
+                            </select>
+                            
+                            <label class="form-label">4. Aspek Terpilih (Bisa pilih lebih dari satu)</label>
+                            <select name="aspek[]" id="combo_aspek" class="form-select" multiple disabled>
+                                <!-- Options diisi via JS -->
+                            </select>
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tahan tombol <code>Ctrl</code> (Windows) / <code>Cmd</code> (Mac) untuk memilih multi-aspek.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Bagian Kanan -->
+                    <div class="col-md-6">
+                        <h6 class="text-primary border-bottom pb-2 mb-3">C. Stakeholder & Mitra</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Pilih Deputi (Unit Internal)</label>
+                            <select id="combo_deputi" class="form-select mb-2">
+                                <option value="">-- Pilih Deputi --</option>
+                            </select>
+
+                            <label class="form-label">7. Direktorat / Unit Internal</label>
+                            <select name="unit_internal" id="combo_direktorat" class="form-select" readonly required>
+                                <option value="">-- Pilih Direktorat --</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">8. Nama Mitra</label>
+                                <input type="text" name="nama_mitra" class="form-control" placeholder="Contoh: PT. ABC / Kemen PUPR">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">9. Jenis Mitra</label>
+                                <select name="jenis_mitra" class="form-select">
+                                    <option value="">-- Pilih --</option>
+                                    <option value="Pemerintah Pusat">Pemerintah Pusat</option>
+                                    <option value="Pemerintah Daerah">Pemerintah Daerah</option>
+                                    <option value="Kemitraan Non Pemerintah">Kemitraan Non Pemerintah</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary border-bottom pb-2 mt-2 mb-3">D. Pelaksanaan & Teknis IT</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">10. Prediksi Pelaksanaan</label>
+                                <input type="week" name="prediksi_pelaksanaan" class="form-control" value="">
+                                <small class="text-muted">Pilih Minggu & Tahun</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">11. Target Pelaksanaan</label>
+                                <input type="week" name="target_pelaksanaan" class="form-control" value="">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">12. Teknik Integrasi</label>
+                            <select name="teknik_integrasi" class="form-select">
+                                <option value="">-- Pilih Teknik IT --</option>
+                                <option value="RESTful API (JSON)">RESTful API (JSON)</option>
+                                <option value="SOAP (XML)">SOAP (XML)</option>
+                                <option value="GraphQL">GraphQL</option>
+                                <option value="Webhooks">Webhooks</option>
+                                <option value="File Transfer (SFTP/ETL)">File Transfer (SFTP/ETL)</option>
+                                <option value="Direct Database Link">Direct Database Link</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">13. Pola Integrasi</label>
+                            <select name="pola_integrasi" class="form-select">
+                                <option value="">-- Pilih Pola --</option>
+                                <option value="Synchronous (Real-time P2P)">Synchronous (Real-time P2P)</option>
+                                <option value="Asynchronous (Message Queue / Kafka)">Asynchronous (Message Queue / Kafka)</option>
+                                <option value="Batch Processing (Terjadwal)">Batch Processing (Terjadwal)</option>
+                                <option value="Hub and Spoke (ESB/API Gateway)">Hub and Spoke (ESB/API Gateway)</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">14. Risiko IT</label>
+                                <select name="risiko" class="form-select">
+                                    <option value="">-- Pilih Risiko --</option>
+                                    <option value="Kebocoran Data (Security)">Kebocoran Data (Security)</option>
+                                    <option value="Latensi / Downtime (Availability)">Latensi / Downtime</option>
+                                    <option value="Inkompatibilitas Format Data">Inkompatibilitas Format Data</option>
+                                    <option value="Kegagalan API Pihak Ketiga">Kegagalan API Pihak Ketiga</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">15. Kontrol / Mitigasi</label>
+                                <select name="kontrol" class="form-select">
+                                    <option value="">-- Pilih Kontrol --</option>
+                                    <option value="Enkripsi & IAM">Enkripsi & IAM</option>
+                                    <option value="Load Balancer & HA">Load Balancer & HA</option>
+                                    <option value="Data Transformation Layer">Data Transformation Layer</option>
+                                    <option value="Circuit Breaker Pattern">Circuit Breaker Pattern</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <hr class="mt-4 mb-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="reset" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Aktivitas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dataPilar = [];
+    let dataKelompok = [];
+    let dataAspek = [];
+    let dataOrganisasi = {};
+
+    const cmbPilar = document.getElementById('combo_pilar');
+    const cmbKelompok = document.getElementById('combo_kelompok');
+    const cmbAspek = document.getElementById('combo_aspek');
+
+    const cmbDeputi = document.getElementById('combo_deputi');
+    const cmbDirektorat = document.getElementById('combo_direktorat');
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('/api/data').then(res => res.json()).then(data => {
+            dataPilar = data.pilar;
+            dataKelompok = data.kelompok;
+            dataAspek = data.aspek;
+            dataOrganisasi = data.organisasi;
+            
+            if(Array.isArray(dataPilar)) {
+                dataPilar.forEach(p => {
+                    let opt = new Option(p.kode_pilar + " - " + p.nama_pilar, p.kode_pilar);
+                    cmbPilar.add(opt);
+                });
+            }
+            
+            let listDeputi = [];
+            try {
+                listDeputi = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan);
+            } catch(e) { console.warn("Format JSON Organisasi berbeda", e); }
+
+            if(listDeputi.length > 0) {
+                listDeputi.forEach((dep, index) => {
+                    let opt = new Option(dep.jabatan, index);
+                    cmbDeputi.add(opt);
+                });
+            }
+        });
+
+        cmbPilar.addEventListener("change", function() {
+            cmbKelompok.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
+            cmbAspek.innerHTML = '';
+            cmbKelompok.disabled = true;
+            cmbAspek.disabled = true;
+
+            const selectedPilar = this.value;
+            if(selectedPilar && Array.isArray(dataKelompok)) {
+                const filteredKel = dataKelompok.filter(k => k.kode_pilar === selectedPilar);
+                if(filteredKel.length > 0) {
+                    cmbKelompok.disabled = false;
+                    filteredKel.forEach(k => {
+                        let opt = new Option(k.kode_kelompok + " - " + k.nama_kelompok, k.kode_kelompok);
+                        cmbKelompok.add(opt);
+                    });
+                }
+            }
+        });
+
+        cmbKelompok.addEventListener("change", function() {
+            cmbAspek.innerHTML = '';
+            cmbAspek.disabled = true;
+
+            const selectedKel = this.value;
+            if(selectedKel && Array.isArray(dataAspek)) {
+                const filteredAspek = dataAspek.filter(a => a.kode_kelompok === selectedKel);
+                if(filteredAspek.length > 0) {
+                    cmbAspek.disabled = false;
+                    filteredAspek.forEach(a => {
+                        let opt = new Option("["+a.kode_aspek+"] " + a.nama_aspek, a.nama_aspek);
+                        cmbAspek.add(opt);
+                    });
+                } else {
+                     cmbAspek.innerHTML = '<option disabled>Aspek kosong di kelompok ini</option>';
+                }
+            }
+        });
+
+        cmbDeputi.addEventListener("change", function() {
+            cmbDirektorat.innerHTML = '<option value="">-- Pilih Direktorat --</option>';
+            cmbDirektorat.readOnly = true;
+
+            const idx = this.value;
+            if(idx !== "") {
+                const direkData = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].direktorat;
+                if(direkData && direkData.length > 0) {
+                    cmbDirektorat.readOnly = false;
+                    direkData.forEach(dir => {
+                        let valText = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan + " | " + dir.nama;
+                        let opt = new Option(dir.nama, valText);
+                        cmbDirektorat.add(opt);
+                    });
+                }
+            }
+        });
+    });
+</script>

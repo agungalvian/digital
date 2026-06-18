@@ -1,10 +1,28 @@
-
-
 <div class="container-fluid pb-5">
     
+    <!-- DHTMLX Gantt Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+    <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+
+    <style>
+        /* Custom DHTMLX Gantt Overdue Style */
+        .gantt-overdue { background-color: #dc3545 !important; border-color: #b02a37 !important; }
+        .gantt-overdue .gantt_task_progress { background-color: #b02a37 !important; }
+        
+        /* Ensure normal tasks are blue */
+        .gantt_task_line { background-color: #0d6efd; border-color: #0a58ca; }
+        .gantt_task_progress { background-color: #0a58ca; }
+    </style>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-activity"></i> Aktivitas Kolaborasi</h4>
+        <a href="/aktivitas/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tambah Aktivitas</a>
+    </div>
+
     <% if(msg == "success") { %>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> Data aktivitas berhasil disimpan ke <strong>data/aktivitas.json</strong>!
+            <i class="bi bi-check-circle"></i> Data aktivitas berhasil disimpan!
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <% } %>
@@ -16,364 +34,201 @@
         </div>
     <% } %>
 
-    <ul class="nav nav-pills mb-3 gap-2" id="pills-tab" role="tablist">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-4" id="aktivitasTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active btn btn-outline-primary" id="pills-form-tab" data-bs-toggle="pill" data-bs-target="#pills-form" type="button" role="tab"><i class="bi bi-plus-circle"></i> Tambah Aktivitas</button>
+            <button class="nav-link active" id="daftar-tab" data-bs-toggle="tab" data-bs-target="#daftar" type="button" role="tab"><i class="bi bi-table"></i> Daftar Data</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link btn btn-outline-primary" id="pills-data-tab" data-bs-toggle="pill" data-bs-target="#pills-data" type="button" role="tab"><i class="bi bi-table"></i> Data Aktivitas</button>
+            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab"><i class="bi bi-calendar-range"></i> Timeline</button>
         </li>
     </ul>
 
-    <div class="tab-content" id="pills-tabContent">
+    <div class="tab-content" id="aktivitasTabContent">
         
-        <!-- ============================================== -->
-        <!-- TAB 1: FORM TAMBAH DATA                        -->
-        <!-- ============================================== -->
-        <div class="tab-pane fade show active" id="pills-form" role="tabpanel">
+        <!-- Tab Daftar -->
+        <div class="tab-pane fade show active" id="daftar" role="tabpanel">
             <div class="card shadow-sm border-0">
-                <div class="card-header rounded-top">
-                    <i class="bi bi-journal-plus"></i> Form Tambah Aktivitas
-                </div>
-                <div class="card-body bg-white">
-                    <form action="/aktivitas" method="POST">
-                        <input type="hidden" name="action" value="add">
-                        
-                        <div class="row g-4">
-                            <!-- Bagian Kiri -->
-                            <div class="col-md-6">
-                                <h6 class="text-primary-custom border-bottom pb-2 mb-3">A. Informasi Utama</h6>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">1. Nama Aktivitas Kolaborasi</label>
-                                    <input type="text" name="nama_aktivitas" class="form-control" required placeholder="Judul/Nama Kegiatan">
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">2. Deskripsi Aktivitas</label>
-                                    <textarea name="deskripsi" class="form-control" rows="3" required placeholder="Penjelasan singkat mengenai aktivitas..."></textarea>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">3. Jenis Kolaborasi</label>
-                                    <select name="jenis_kolaborasi" class="form-select" required>
-                                        <option value="">-- Pilih Jenis --</option>
-                                        <option value="Kolaborasi">Kolaborasi</option>
-                                        <option value="Non Kolaborasi">Non Kolaborasi</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">5. Output (Keluaran)</label>
-                                    <textarea name="output" class="form-control" rows="2" placeholder="Sistem baru, API dokumen, dll..."></textarea>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">6. Outcome (Hasil/Dampak)</label>
-                                    <textarea name="outcome" class="form-control" rows="2" placeholder="Efisiensi waktu, peningkatan layanan..."></textarea>
-                                </div>
-
-                                <h6 class="text-primary-custom border-bottom pb-2 mt-4 mb-3">B. Filter Aspek Terkait (Multi-Pilihan)</h6>
-                                <div class="mb-3">
-                                    <label class="form-label text-muted small">Pilih Pilar</label>
-                                    <select id="combo_pilar" class="form-select mb-2">
-                                        <option value="">-- Pilih Pilar --</option>
-                                    </select>
-                                    
-                                    <label class="form-label text-muted small">Pilih Kelompok</label>
-                                    <select id="combo_kelompok" class="form-select mb-2" disabled>
-                                        <option value="">-- Pilih Kelompok --</option>
-                                    </select>
-                                    
-                                    <label class="form-label">4. Aspek Terpilih (Bisa pilih lebih dari satu)</label>
-                                    <select name="aspek[]" id="combo_aspek" class="form-select" multiple disabled>
-                                        <!-- Options diisi via JS -->
-                                    </select>
-                                    <small class="text-muted"><i class="bi bi-info-circle"></i> Tahan tombol <code>Ctrl</code> (Windows) / <code>Cmd</code> (Mac) untuk memilih multi-aspek.</small>
-                                </div>
-                            </div>
-                            
-                            <!-- Bagian Kanan -->
-                            <div class="col-md-6">
-                                <h6 class="text-primary-custom border-bottom pb-2 mb-3">C. Stakeholder & Mitra</h6>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label text-muted small">Pilih Deputi (Unit Internal)</label>
-                                    <select id="combo_deputi" class="form-select mb-2">
-                                        <option value="">-- Pilih Deputi --</option>
-                                    </select>
-
-                                    <label class="form-label">7. Direktorat / Unit Internal</label>
-                                    <select name="unit_internal" id="combo_direktorat" class="form-select" readonly required>
-                                        <option value="">-- Pilih Direktorat --</option>
-                                    </select>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">8. Nama Mitra</label>
-                                        <input type="text" name="nama_mitra" class="form-control" placeholder="Contoh: PT. ABC / Kemen PUPR">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">9. Jenis Mitra</label>
-                                        <select name="jenis_mitra" class="form-select">
-                                            <option value="">-- Pilih --</option>
-                                            <option value="Pemerintah Pusat">Pemerintah Pusat</option>
-                                            <option value="Pemerintah Daerah">Pemerintah Daerah</option>
-                                            <option value="Kemitraan Non Pemerintah">Kemitraan Non Pemerintah</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <h6 class="text-primary-custom border-bottom pb-2 mt-2 mb-3">D. Pelaksanaan & Teknis IT</h6>
-                                
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">10. Prediksi Pelaksanaan</label>
-                                        <input type="week" name="prediksi_pelaksanaan" class="form-control" value="">
-                                        <small class="text-muted">Pilih Minggu & Tahun</small>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">11. Target Pelaksanaan</label>
-                                        <input type="week" name="target_pelaksanaan" class="form-control" value="">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">12. Teknik Integrasi</label>
-                                    <select name="teknik_integrasi" class="form-select">
-                                        <option value="">-- Pilih Teknik IT --</option>
-                                        <option value="RESTful API (JSON)">RESTful API (JSON)</option>
-                                        <option value="SOAP (XML)">SOAP (XML)</option>
-                                        <option value="GraphQL">GraphQL</option>
-                                        <option value="Webhooks">Webhooks</option>
-                                        <option value="File Transfer (SFTP/ETL)">File Transfer (SFTP/ETL)</option>
-                                        <option value="Direct Database Link">Direct Database Link</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">13. Pola Integrasi</label>
-                                    <select name="pola_integrasi" class="form-select">
-                                        <option value="">-- Pilih Pola --</option>
-                                        <option value="Synchronous (Real-time P2P)">Synchronous (Real-time P2P)</option>
-                                        <option value="Asynchronous (Message Queue / Kafka)">Asynchronous (Message Queue / Kafka)</option>
-                                        <option value="Batch Processing (Terjadwal)">Batch Processing (Terjadwal)</option>
-                                        <option value="Hub and Spoke (ESB/API Gateway)">Hub and Spoke (ESB/API Gateway)</option>
-                                    </select>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">14. Risiko IT</label>
-                                        <select name="risiko" class="form-select">
-                                            <option value="">-- Pilih Risiko --</option>
-                                            <option value="Kebocoran Data (Security)">Kebocoran Data (Security)</option>
-                                            <option value="Latensi / Downtime (Availability)">Latensi / Downtime</option>
-                                            <option value="Inkompatibilitas Format Data">Inkompatibilitas Format Data</option>
-                                            <option value="Kegagalan API Pihak Ketiga">Kegagalan API Pihak Ketiga</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">15. Kontrol / Mitigasi</label>
-                                        <select name="kontrol" class="form-select">
-                                            <option value="">-- Pilih Kontrol --</option>
-                                            <option value="Autentikasi OAuth 2.0 / JWT">Autentikasi OAuth 2.0 / JWT</option>
-                                            <option value="Enkripsi End-to-End (TLS)">Enkripsi End-to-End (TLS)</option>
-                                            <option value="Rate Limiting & WAF">Rate Limiting & WAF</option>
-                                            <option value="Log Audit & Monitoring (APM)">Log Audit & Monitoring (APM)</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        
-                        <hr class="mt-4 mb-3">
-                        <div class="text-end">
-                            <button type="reset" class="btn btn-light border"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
-                            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Simpan Aktivitas</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- TAB 2: DATA LIST / READ DATA                   -->
-        <!-- ============================================== -->
-        <div class="tab-pane fade" id="pills-data" role="tabpanel">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-secondary rounded-top">
-                    <i class="bi bi-table"></i> Daftar Data Aktivitas Kolaborasi (Aktivitas.json)
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Daftar Data Aktivitas</h6>
                 </div>
                 <div class="card-body bg-white table-responsive">
-                    <table class="table table-bordered table-striped table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Aktivitas</th>
-                                <th>Kolaborasi</th>
-                                <th>Unit & Mitra</th>
-                                <th>Pelaksanaan</th>
-                                <th>Aspek</th>
-                                <th>Integrasi IT</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if(!listData || listData.length === 0) { %>
-                            <tr><td colspan="8" class="text-center text-muted py-4">Belum ada data aktivitas.</td></tr>
-                            <% } else { 
-                                let no = 1;
-                                listData.forEach(row => { 
-                            %>
-                            <tr>
-                                <td><%= no++ %></td>
-                                <td>
-                                    <strong><%= row.nama_aktivitas %></strong><br>
-                                    <small class="text-muted"><%= row.deskripsi %></small>
-                                </td>
-                                <td><span class="badge bg-<%= row.jenis_kolaborasi == "Kolaborasi" ? "success" : "secondary" %>"><%= row.jenis_kolaborasi %></span></td>
-                                <td>
-                                    <small><b>Unit:</b> <%= row.unit_internal %></small><br>
-                                    <small><b>Mitra:</b> <%= row.nama_mitra %> (<%= row.jenis_mitra %>)</small>
-                                </td>
-                                <td>
-                                    <small>P: <%= row.prediksi_pelaksanaan %></small><br>
-                                    <small>T: <%= row.target_pelaksanaan %></small>
-                                </td>
-                                <td>
-                                    <% if (row.aspek && Array.isArray(row.aspek) && row.aspek.length > 0) { row.aspek.forEach(asp => { %><span class="badge bg-info text-dark mb-1 me-1"><%= asp %></span><% }) } else { %>-<% } %>
-                                </td>
-                                <td>
-                                    <small><%= row.teknik_integrasi %></small>
-                                </td>
-                                <td>
-                                    <a href="?delete=<%= row.id %>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
-                            <% }) } %>
-                        </tbody>
-                    </table>
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Aktivitas</th>
+                        <th>Kolaborasi</th>
+                        <th>Unit & Mitra</th>
+                        <th>Pelaksanaan</th>
+                        <th>Aspek</th>
+                        <th>Integrasi IT</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(!listData || listData.length === 0) { %>
+                    <tr><td colspan="8" class="text-center text-muted py-4">Belum ada data aktivitas.</td></tr>
+                    <% } else { 
+                        let no = 1;
+                        listData.forEach(row => { 
+                    %>
+                    <tr>
+                        <td><%= no++ %></td>
+                        <td>
+                            <strong><%= row.nama_aktivitas %></strong><br>
+                            <small class="text-muted"><%= row.deskripsi %></small>
+                        </td>
+                        <td><span class="badge bg-<%= row.jenis_kolaborasi == "Kolaborasi" ? "success" : "secondary" %>"><%= row.jenis_kolaborasi %></span></td>
+                        <td>
+                            <small><b>Unit:</b> <%= row.unit_internal %></small><br>
+                            <small><b>Mitra:</b> <%= row.nama_mitra %> (<%= row.jenis_mitra %>)</small>
+                        </td>
+                        <td>
+                            <small>P: <%= row.prediksi_pelaksanaan %></small><br>
+                            <small>T: <%= row.target_pelaksanaan %></small>
+                        </td>
+                        <td>
+                            <% if (row.aspek && Array.isArray(row.aspek) && row.aspek.length > 0) { row.aspek.forEach(asp => { %><span class="badge bg-info text-dark mb-1 me-1"><%= asp %></span><% }) } else { %>-<% } %>
+                        </td>
+                        <td>
+                            <small><%= row.teknik_integrasi %></small>
+                        </td>
+                        <td>
+                            <a href="/aktivitas/edit/<%= row.id %>" class="btn btn-sm btn-primary mb-1"><i class="bi bi-pencil-square"></i></a>
+                            <a href="/aktivitas/delete/<%= row.id %>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    <% }) } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+        </div>
+
+        <!-- Tab Timeline -->
+        <div class="tab-pane fade" id="timeline" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">Gantt Chart Aktivitas</h6>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeView('Week')">Week</button>
+                        <button type="button" class="btn btn-outline-secondary active" onclick="changeView('Month')">Month</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeView('Year')">Year</button>
+                    </div>
+                </div>
+                <div class="card-body bg-white">
+                    <div id="gantt-target" style="width: 100%; height: 500px;"></div>
                 </div>
             </div>
         </div>
-        
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- JAVASCRIPT LOGIC UNTUK FILTER CASCADING DROPDOWN-->
-<!-- ============================================== -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 1. Parsing JSON Data dari PHP ke Javascript Variable
-    let dataPilar = [];
-    let dataKelompok = [];
-    let dataAspek = [];
-    let dataOrganisasi = {};
+// Parse data dari EJS ke script
+const rawData = <%- JSON.stringify(listData || []) %>;
 
-    // Elemen DOM Aspek (Pilar -> Kelompok -> Aspek)
-    const cmbPilar = document.getElementById('combo_pilar');
-    const cmbKelompok = document.getElementById('combo_kelompok');
-    const cmbAspek = document.getElementById('combo_aspek');
+// Fungsi untuk konversi '2026-W27' ke tanggal valid YYYY-MM-DD
+function getWeekDateRange(weekString, isEnd = false) {
+    if(!weekString) return null;
+    const parts = weekString.split('-W');
+    if(parts.length !== 2) return null;
+    const year = parts[0];
+    const week = parts[1];
+    
+    // moment.js parses ISO weeks automatically
+    const date = moment(`${year}-W${week}`, 'YYYY-[W]WW');
+    if(isEnd) {
+        // Frappe gantt needs the end date, we add 6 days to represent end of week
+        return date.add(6, 'days').format('YYYY-MM-DD');
+    }
+    return date.format('YYYY-MM-DD');
+}
 
-    // Elemen DOM Organisasi (Deputi -> Direktorat)
-    const cmbDeputi = document.getElementById('combo_deputi');
-    const cmbDirektorat = document.getElementById('combo_direktorat');
+document.addEventListener("DOMContentLoaded", function() {
+    let tasks = [];
+    const now = moment();
 
-    document.addEventListener("DOMContentLoaded", () => {
-
-    fetch('/api/data').then(res => res.json()).then(data => {
-        dataPilar = data.pilar;
-        dataKelompok = data.kelompok;
-        dataAspek = data.aspek;
-        dataOrganisasi = data.organisasi;
+    rawData.forEach((row, i) => {
+        let start = getWeekDateRange(row.prediksi_pelaksanaan);
+        let end = getWeekDateRange(row.target_pelaksanaan, true);
         
-        // Trigger initial render for Pilar
-        if(Array.isArray(dataPilar)) {
-            dataPilar.forEach(p => {
-                let opt = new Option(p.kode_pilar + " - " + p.nama_pilar, p.kode_pilar);
-                cmbPilar.add(opt);
-            });
-        }
-        
-        let listDeputi = [];
-        try {
-            listDeputi = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan);
-        } catch(e) { console.warn("Format JSON Organisasi berbeda", e); }
+        // Fallback jika tgl kosong, gunakan hari ini
+        if(!start) start = now.format('YYYY-MM-DD');
+        if(!end) end = moment(start).add(1, 'month').format('YYYY-MM-DD');
 
-        if(listDeputi.length > 0) {
-            listDeputi.forEach((dep, index) => {
-                let opt = new Option(dep.jabatan, index);
-                cmbDeputi.add(opt);
-            });
-        }
+        // Deteksi Overdue
+        const endDateObj = moment(end);
+        const isOverdue = endDateObj.isBefore(now, 'day');
+        
+        // Progress mock: 100% jika sudah lewat end date dan tidak "overdue" tapi krn ini simple, kasih aja 50% default
+        let progress = 0;
+        
+        tasks.push({
+            id: row.id || `task-${i}`,
+            text: row.nama_aktivitas, // DHTMLX uses 'text'
+            start_date: start,        // DHTMLX uses 'start_date'
+            end_date: end,            // DHTMLX uses 'end_date'
+            progress: progress,
+            is_overdue: isOverdue
+        });
     });
 
-        // Event Ganti Pilar
-        cmbPilar.addEventListener("change", function() {
-            cmbKelompok.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
-            cmbAspek.innerHTML = '';
-            cmbKelompok.disabled = true;
-            cmbAspek.disabled = true;
+    if(tasks.length > 0) {
+        // Configurasi DHTMLX Gantt
+        gantt.config.date_format = "%Y-%m-%d";
+        gantt.config.columns = [
+            { name: "text", label: "Daftar Aktivitas", width: "*", tree: true }
+        ];
 
-            const selectedPilar = this.value;
-            if(selectedPilar && Array.isArray(dataKelompok)) {
-                const filteredKel = dataKelompok.filter(k => k.kode_pilar === selectedPilar);
-                if(filteredKel.length > 0) {
-                    cmbKelompok.disabled = false;
-                    filteredKel.forEach(k => {
-                        let opt = new Option(k.kode_kelompok + " - " + k.nama_kelompok, k.kode_kelompok);
-                        cmbKelompok.add(opt);
-                    });
-                }
-            }
-        });
+        // Format waktu: atas Bulan, bawah Minggu
+        gantt.config.scales = [
+            { unit: "month", step: 1, format: "%F %Y" },
+            { unit: "week", step: 1, format: "Week %W" }
+        ];
 
-        // Event Ganti Kelompok
-        cmbKelompok.addEventListener("change", function() {
-            cmbAspek.innerHTML = '';
-            cmbAspek.disabled = true;
+        // Sembunyikan teks di dalam balok grafik
+        gantt.templates.task_text = function() {
+            return "";
+        };
 
-            const selectedKel = this.value;
-            if(selectedKel && Array.isArray(dataAspek)) {
-                const filteredAspek = dataAspek.filter(a => a.kode_kelompok === selectedKel);
-                if(filteredAspek.length > 0) {
-                    cmbAspek.disabled = false;
-                    filteredAspek.forEach(a => {
-                        // Value yang disimpan adalah nama aspek, text yg tampil kode+nama
-                        let opt = new Option("["+a.kode_aspek+"] " + a.nama_aspek, a.nama_aspek);
-                        cmbAspek.add(opt);
-                    });
-                } else {
-                     cmbAspek.innerHTML = '<option disabled>Aspek kosong di kelompok ini</option>';
-                }
-            }
-        });
+        // Kustomisasi warna untuk overdue
+        gantt.templates.task_class = function(start, end, task) {
+            if(task.is_overdue) return "gantt-overdue";
+            return "";
+        };
 
-        // Event Ganti Deputi
-        cmbDeputi.addEventListener("change", function() {
-            cmbDirektorat.innerHTML = '<option value="">-- Pilih Direktorat --</option>';
-            cmbDirektorat.readOnly = true;
+        gantt.init("gantt-target");
+        gantt.parse({ data: tasks });
+    } else {
+        document.getElementById('gantt-target').innerHTML = "<p class='text-center py-4 text-muted'>Belum ada aktivitas untuk ditampilkan di timeline.</p>";
+    }
+});
 
-            const idx = this.value;
-            if(idx !== "") {
-                const direkData = listDeputi[idx].direktorat;
-                if(direkData && direkData.length > 0) {
-                    cmbDirektorat.readOnly = false;
-                    direkData.forEach(dir => {
-                        // Value format: Deputi - Direktorat
-                        let valText = listDeputi[idx].jabatan + " | " + dir.nama;
-                        let opt = new Option(dir.nama, valText);
-                        cmbDirektorat.add(opt);
-                    });
-                }
-            }
-        });
-
-    });
-</script>
-
+function changeView(mode) {
+    if(typeof gantt !== 'undefined') {
+        if (mode === 'Week') {
+            gantt.config.scales = [
+                { unit: "week", step: 1, format: "Week %W" },
+                { unit: "day", step: 1, format: "%d %M" }
+            ];
+        } else if (mode === 'Month') {
+            gantt.config.scales = [
+                { unit: "month", step: 1, format: "%F %Y" },
+                { unit: "week", step: 1, format: "Week %W" }
+            ];
+        } else if (mode === 'Year') {
+            gantt.config.scales = [
+                { unit: "year", step: 1, format: "%Y" },
+                { unit: "month", step: 1, format: "%M" }
+            ];
+        }
+        gantt.render();
+        
+        // Toggle active class di button
+        document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+}
 </script>

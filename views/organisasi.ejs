@@ -1,28 +1,59 @@
-<% function card(text, cls = 'green') { return '<div class="card '+cls+'">'+text+'</div>'; } %>
+<style>
+.org-wrapper { overflow-x: auto; width: 100%; padding-bottom: 50px; background: #fff; padding: 20px; border-radius: 12px; }
+.org-inner { min-width: max-content; padding-right: 20px; padding-left: 20px; }
+.org-wrapper .org-row { display: flex; justify-content: center; gap: 20px; }
+.org-wrapper .org-row-deputi { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.org-card {
+    border-radius: 12px; padding: 12px 18px; text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,.05); transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 15px; font-weight: 500; font-size: 14px;
+}
+.org-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,.1); }
+.org-card.green { background: linear-gradient(135deg, #198754, #20c997); color: #fff; font-weight: 600; border: none; }
+.org-card.blue { background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: #fff; border: none; }
+.org-card.orange { background: linear-gradient(135deg, #fd7e14, #ffc107); color: #fff; border: none; }
+.org-card.white { background: #fff; color: #333; border: 1px solid #e9ecef; }
+.komisioner { width: 350px; margin: auto; }
+.org-line { width: 2px; height: 30px; background: #cbd5e1; margin: auto; }
+.org-h-line { height: 2px; background: #cbd5e1; width: 95%; margin: 25px auto; }
+.support .org-card { min-width: 250px; }
+.deputy { flex: 1; min-width: 320px; }
+.direktorat { margin-bottom: 20px; border-left: 4px solid #198754; padding-left: 16px; border-radius: 4px; }
+.divisi { display: flex; flex-direction: column; gap: 10px; }
+.divisi .org-card { font-size: 13px; padding: 10px; margin-bottom: 0; }
+.strategis { flex: 1; min-width: 320px; }
+</style>
 
-<div class="wrapper">
-    <!-- KOMISIONER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-diagram-3"></i> Struktur Organisasi</h4>
+</div>
+
+<% function card(text, cls = 'green') { return '<div class="org-card '+cls+'">'+text+'</div>'; } %>
+
+<div class="org-wrapper shadow-sm">
+    <div class="org-inner">
+        <!-- KOMISIONER -->
     <div class="komisioner">
         <%- card('Komisioner') %>
     </div>
-    <div class="line"></div>
+    <div class="org-line"></div>
 
     <% if (data && data.komisioner) { %>
         <% const komisioner = data.komisioner; %>
 
         <!-- UNIT PENDUKUNG -->
         <% if (komisioner.unit_pendukung) { %>
-        <div class="row support">
+        <div class="org-row support">
             <% komisioner.unit_pendukung.forEach(unit => { %>
                 <%- card(unit.nama, 'white') %>
             <% }) %>
         </div>
         <% } %>
 
-        <div class="h-line"></div>
+        <div class="org-h-line"></div>
 
         <!-- UNIT DIBAWAH -->
-        <div class="row-deputi">
+        <div class="org-row-deputi">
             <% if (komisioner.unit_di_bawah) { %>
                 <% komisioner.unit_di_bawah.forEach(unit => { %>
                     <% if (unit.jabatan) { %>
@@ -70,4 +101,5 @@
     <% } else { %>
         <p style="text-align:center;">Data Organisasi belum tersedia.</p>
     <% } %>
+    </div>
 </div>

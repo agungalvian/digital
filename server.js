@@ -122,6 +122,10 @@ app.get('/aktivitas', requireAuth, async (req, res) => {
     }
 });
 
+app.get('/aktivitas/add', requireAuth, (req, res) => {
+    res.render('add_aktivitas');
+});
+
 app.post('/aktivitas', requireAuth, async (req, res) => {
     try {
         if (req.body.action === 'add') {
@@ -165,31 +169,59 @@ app.get('/aktivitas/delete/:id', requireAuth, async (req, res) => {
     }
 });
 
-// --- Organisasi ---
-app.get('/organisasi', requireAuth, async (req, res) => {
+app.get('/aktivitas/edit/:id', requireAuth, async (req, res) => {
     try {
-        const result = await pool.query('SELECT data FROM organisasi LIMIT 1');
-        const data = result.rows.length > 0 ? result.rows[0].data : null;
-        res.render('organisasi', { data });
+        const result = await pool.query('SELECT * FROM aktivitas WHERE id = $1', [req.params.id]);
+        if (result.rows.length === 0) return res.status(404).send('Aktivitas tidak ditemukan');
+        res.render('edit_aktivitas', { data: result.rows[0] });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
 });
 
-// --- Page Aspek ---
-app.get('/page_aspek', requireAuth, async (req, res) => {
+app.post('/aktivitas/edit/:id', requireAuth, async (req, res) => {
     try {
-        const pilarRes = await pool.query('SELECT * FROM pilar ORDER BY kode_pilar');
-        const kelompokRes = await pool.query('SELECT * FROM kelompok ORDER BY kode_kelompok');
-        const aspekRes = await pool.query('SELECT * FROM aspek ORDER BY kode_aspek');
+        const {
+            nama_aktivitas, deskripsi, jenis_kolaborasi, aspek,
+            output, outcome, unit_internal, nama_mitra, jenis_mitra,
+            prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
+            pola_integrasi, risiko, kontrol
+        } = req.body;
         
-        res.render('page_aspek', {
-            pilar: pilarRes.rows,
-            kelompok: kelompokRes.rows,
-            aspek: aspekRes.rows,
-            errors: []
-        });
+        // aspek from form is array or string
+        let aspekArr = [];
+        if (aspek) {
+            aspekArr = Array.isArray(aspek) ? aspek : [aspek];
+        }
+
+        await pool.query(
+            `UPDATE aktivitas SET 
+                nama_aktivitas = $1, deskripsi = $2, jenis_kolaborasi = $3, aspek = $4,
+                output = $5, outcome = $6, unit_internal = $7, nama_mitra = $8, jenis_mitra = $9,
+                prediksi_pelaksanaan = $10, target_pelaksanaan = $11, teknik_integrasi = $12,
+                pola_integrasi = $13, risiko = $14, kontrol = $15
+            WHERE id = $16`,
+            [
+                nama_aktivitas, deskripsi, jenis_kolaborasi, JSON.stringify(aspekArr),
+                output, outcome, unit_internal, nama_mitra, jenis_mitra,
+                prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
+                pola_integrasi, risiko, kontrol, req.params.id
+            ]
+        );
+        res.redirect('/aktivitas?msg=updated');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// --- Organisasi ---
+app.get('/organisasi', requireAuth, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT data FROM organisasi LIMIT 1');
+        const data = result.rows.length > 0 ? result.rows[0].data : null;
+        res.render('organisasi', { data });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');

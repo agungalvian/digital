@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "3005:3000"
+      - "3035:3000"
     environment:
       - DB_HOST=db
       - DB_USER=${POSTGRES_USER:-postgres}
@@ -26,8 +26,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-digital_db}
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
