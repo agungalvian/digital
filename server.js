@@ -11,14 +11,37 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Setup PostgreSQL pool
+// Inisialisasi PostgreSQL Pool
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+    host: process.env.DB_HOST || 'db',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    database: process.env.DB_NAME || 'digital_db',
+    port: process.env.DB_PORT || 5432,
 });
+
+// Otomatis membuat admin jika tabel users kosong
+async function ensureAdminUser() {
+    try {
+        // Cek tabel users
+        const res = await pool.query("SELECT to_regclass('public.users') as exists");
+        if(res.rows[0].exists) {
+            const countRes = await pool.query('SELECT COUNT(*) FROM users');
+            if (parseInt(countRes.rows[0].count) === 0) {
+                const bcrypt = require('bcryptjs');
+                const hashedPassword = await bcrypt.hash('admin123', 10);
+                await pool.query(
+                    `INSERT INTO users (username, password, role) VALUES ($1, $2, $3) ON CONFLICT (username) DO NOTHING`,
+                    ['admin', hashedPassword, 'admin']
+                );
+                console.log("Auto-seeded default admin user: admin / admin123");
+            }
+        }
+    } catch (e) {
+        console.error("Error ensuring admin user:", e);
+    }
+}
+ensureAdminUser();
 
 // Middleware
 app.set('view engine', 'ejs');
@@ -103,6 +126,39 @@ app.get('/api/data', requireAuth, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// --- Ganti Password ---
+app.get('/ganti_password', requireAuth, (req, res) => {
+    res.render('ganti_password', { error: null, success: null });
+});
+
+app.post('/ganti_password', requireAuth, async (req, res) => {
+    const { old_password, new_password, confirm_password } = req.body;
+    try {
+        if (new_password !== confirm_password) {
+            return res.render('ganti_password', { error: 'Konfirmasi password baru tidak cocok.', success: null });
+        }
+
+        // Get current user password
+        const userRes = await pool.query('SELECT password FROM users WHERE id = $1', [req.session.userId]);
+        if (userRes.rows.length === 0) {
+            return res.render('ganti_password', { error: 'User tidak ditemukan.', success: null });
+        }
+
+        const validPassword = await bcrypt.compare(old_password, userRes.rows[0].password);
+        if (!validPassword) {
+            return res.render('ganti_password', { error: 'Password lama salah.', success: null });
+        }
+
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.session.userId]);
+
+        res.render('ganti_password', { error: null, success: 'Password berhasil diubah!' });
+    } catch (err) {
+        console.error(err);
+        res.render('ganti_password', { error: 'Terjadi kesalahan sistem.', success: null });
     }
 });
 
