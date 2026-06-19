@@ -50,7 +50,32 @@
         <div class="tab-pane fade show active" id="daftar" role="tabpanel">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white">
-                    <h6 class="mb-0 fw-bold">Daftar Data Aktivitas</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Daftar Data Aktivitas</h6>
+                        <div class="d-flex gap-2">
+                            <select id="filterKolaborasi" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Semua Kolaborasi</option>
+                                <option value="Kolaborasi">Kolaborasi</option>
+                                <option value="Non Kolaborasi">Non Kolaborasi</option>
+                            </select>
+                            <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Semua Status</option>
+                                <option value="Usulan">Usulan</option>
+                                <option value="Analisis">Analisis</option>
+                                <option value="Persetujuan Perencanaan">Persetujuan Perencanaan</option>
+                                <option value="Forum Group Discussion">Forum Group Discussion</option>
+                                <option value="Perencanaan">Perencanaan</option>
+                                <option value="Perjanjian Kerjasama">Perjanjian Kerjasama</option>
+                                <option value="Adendum Perjanjian Kerjasama">Adendum Perjanjian Kerjasama</option>
+                                <option value="Pengembangan">Pengembangan</option>
+                                <option value="SIT/UAT">SIT/UAT</option>
+                                <option value="Go Live">Go Live</option>
+                                <option value="Monitoring implementasi">Monitoring implementasi</option>
+                                <option value="Selesai">Selesai</option>
+                            </select>
+                            <input type="text" id="searchAktivitas" class="form-control form-control-sm" placeholder="Cari aktivitas, unit, mitra..." style="width: 250px;">
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body bg-white table-responsive">
             <table class="table table-bordered table-striped table-hover align-middle">
@@ -63,6 +88,7 @@
                         <th>Pelaksanaan</th>
                         <th>Aspek</th>
                         <th>Integrasi IT</th>
+                        <th class="text-center">Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -81,7 +107,8 @@
                         </td>
                         <td><span class="badge bg-<%= row.jenis_kolaborasi == "Kolaborasi" ? "success" : "secondary" %>"><%= row.jenis_kolaborasi %></span></td>
                         <td>
-                            <small><b>Unit:</b> <%= row.unit_internal %></small><br>
+                            <% let unitStr = ''; try { let u = JSON.parse(row.unit_internal); unitStr = Array.isArray(u) ? u.join(', ') : u; } catch(e) { unitStr = row.unit_internal; } %>
+                            <small><b>Unit:</b> <%= unitStr %></small><br>
                             <small><b>Mitra:</b> <%= row.nama_mitra %> (<%= row.jenis_mitra %>)</small>
                         </td>
                         <td>
@@ -92,11 +119,71 @@
                             <% if (row.aspek && Array.isArray(row.aspek) && row.aspek.length > 0) { row.aspek.forEach(asp => { %><span class="badge bg-info text-dark mb-1 me-1"><%= asp %></span><% }) } else { %>-<% } %>
                         </td>
                         <td>
-                            <small><%= row.teknik_integrasi %></small>
+                            <small><b>Teknik:</b> <%= row.teknik_integrasi || '-' %></small><br>
+                            <small><b>Pola:</b> <%= row.pola_integrasi || '-' %></small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-primary"><%= row.status || 'Usulan' %></span>
                         </td>
                         <td>
-                            <a href="/aktivitas/edit/<%= row.id %>" class="btn btn-sm btn-primary mb-1"><i class="bi bi-pencil-square"></i></a>
-                            <a href="/aktivitas/delete/<%= row.id %>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')"><i class="bi bi-trash"></i></a>
+                            <div class="d-flex gap-1 flex-wrap">
+                                <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#viewModal<%= row.id %>" title="View Details"><i class="bi bi-eye"></i></button>
+                                <a href="/aktivitas/edit/<%= row.id %>" class="btn btn-sm btn-primary" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                <a href="/aktivitas/delete/<%= row.id %>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')" title="Delete"><i class="bi bi-trash"></i></a>
+                            </div>
+
+                            <!-- View Modal -->
+                            <div class="modal fade text-start" id="viewModal<%= row.id %>" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-info text-white">
+                                            <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detail Aktivitas</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-dark" style="white-space: normal;">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <p class="mb-1 text-muted small">Nama Aktivitas</p>
+                                                    <h6><%= row.nama_aktivitas %></h6>
+                                                    
+                                                    <p class="small mb-1"><strong>Deskripsi:</strong> <%= row.deskripsi %></p>
+                                                    <p class="small mb-1"><strong>Kolaborasi:</strong> <%= row.jenis_kolaborasi %></p>
+                                                    <p class="small mb-1"><strong>Status:</strong> <span class="badge bg-primary"><%= row.status || 'Usulan' %></span></p>
+                                                    
+                                                    <p class="small mb-1"><strong>Output:</strong> <%= row.output || '-' %></p>
+                                                    <p class="small"><strong>Outcome:</strong> <%= row.outcome || '-' %></p>
+                                                    
+                                                    <p class="mb-1 mt-3 text-muted small">Aspek Terkait</p>
+                                                    <div>
+                                                        <% if (row.aspek && Array.isArray(row.aspek) && row.aspek.length > 0) { row.aspek.forEach(asp => { %><span class="badge bg-info text-dark mb-1 me-1"><%= asp %></span><% }) } else { %>-<% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3 border-start">
+                                                    <p class="mb-1 text-muted small">Unit Internal & Mitra</p>
+                                                    <p class="small mb-1"><strong>Unit Internal:</strong> <%= unitStr %></p>
+                                                    <p class="small"><strong>Mitra:</strong> <%= row.nama_mitra %> (<%= row.jenis_mitra %>)</p>
+                                                    
+                                                    <p class="mb-1 mt-3 text-muted small">Jadwal Pelaksanaan</p>
+                                                    <p class="small mb-1"><strong>Prediksi:</strong> <%= row.prediksi_pelaksanaan %></p>
+                                                    <p class="small"><strong>Target:</strong> <%= row.target_pelaksanaan %></p>
+                                                    
+                                                    <p class="mb-1 mt-3 text-muted small">Integrasi IT</p>
+                                                    <p class="small mb-1"><strong>Teknik Integrasi:</strong> <%= row.teknik_integrasi || '-' %></p>
+                                                    <p class="small"><strong>Pola Integrasi:</strong> <%= row.pola_integrasi || '-' %></p>
+                                                    
+                                                    <p class="mb-1 mt-3 text-muted small">Manajemen Risiko</p>
+                                                    <p class="small mb-1"><strong>Risiko:</strong> <%= row.risiko || '-' %></p>
+                                                    <p class="small"><strong>Kontrol / Mitigasi:</strong> <%= row.kontrol || '-' %></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End View Modal -->
                         </td>
                     </tr>
                     <% }) } %>
@@ -171,7 +258,8 @@ document.addEventListener("DOMContentLoaded", function() {
             start_date: start,        // DHTMLX uses 'start_date'
             end_date: end,            // DHTMLX uses 'end_date'
             progress: progress,
-            is_overdue: isOverdue
+            is_overdue: isOverdue,
+            status: row.status || 'Usulan'
         });
     });
 
@@ -179,7 +267,15 @@ document.addEventListener("DOMContentLoaded", function() {
         // Configurasi DHTMLX Gantt
         gantt.config.date_format = "%Y-%m-%d";
         gantt.config.columns = [
-            { name: "text", label: "Daftar Aktivitas", width: "*", tree: true }
+            { 
+                name: "text", 
+                label: "Daftar Aktivitas", 
+                width: "*", 
+                tree: true,
+                template: function(task) {
+                    return "<strong>" + task.text + "</strong>";
+                }
+            }
         ];
 
         // Format waktu: atas Bulan, bawah Minggu
@@ -188,9 +284,9 @@ document.addEventListener("DOMContentLoaded", function() {
             { unit: "week", step: 1, format: "Week %W" }
         ];
 
-        // Sembunyikan teks di dalam balok grafik
-        gantt.templates.task_text = function() {
-            return "";
+        // Tampilkan teks status di dalam balok grafik
+        gantt.templates.task_text = function(start, end, task) {
+            return task.status;
         };
 
         // Kustomisasi warna untuk overdue
@@ -231,4 +327,46 @@ function changeView(mode) {
         event.target.classList.add('active');
     }
 }
+
+// Fitur Pencarian & Filter Aktivitas
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById('searchAktivitas');
+    const filterKolab = document.getElementById('filterKolaborasi');
+    const filterStat = document.getElementById('filterStatus');
+    const tableBody = document.querySelector('#daftar table tbody');
+    
+    function applyFilters() {
+        if (!searchInput || !filterKolab || !tableBody) return;
+        
+        const searchText = searchInput.value.toLowerCase();
+        const kolabVal = filterKolab.value.toLowerCase();
+        const statVal = filterStat ? filterStat.value.toLowerCase() : '';
+        const rows = tableBody.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            // Abaikan baris "Belum ada data"
+            if (row.cells.length === 1) return;
+            
+            const textContent = row.textContent.toLowerCase();
+            // Kolom jenis kolaborasi ada di index 2
+            const jenisKolabText = row.cells[2] ? row.cells[2].textContent.toLowerCase().trim() : '';
+            // Kolom status ada di index 7
+            const statusText = row.cells[7] ? row.cells[7].textContent.toLowerCase().trim() : '';
+            
+            const matchSearch = textContent.includes(searchText);
+            const matchKolab = (kolabVal === '') || (jenisKolabText === kolabVal);
+            const matchStat = (statVal === '') || (statusText === statVal);
+            
+            if (matchSearch && matchKolab && matchStat) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    if (searchInput) searchInput.addEventListener('keyup', applyFilters);
+    if (filterKolab) filterKolab.addEventListener('change', applyFilters);
+    if (filterStat) filterStat.addEventListener('change', applyFilters);
+});
 </script>

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS aktivitas (
     pola_integrasi VARCHAR(100),
     risiko VARCHAR(100),
     kontrol VARCHAR(100),
+    status VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -34,7 +35,8 @@ CREATE TABLE IF NOT EXISTS aspek (
     kode_kelompok VARCHAR(50),
     kode_pilar VARCHAR(50),
     nama_aspek VARCHAR(255),
-    keterangan_aspek TEXT
+    keterangan_aspek TEXT,
+    status_ketersediaan VARCHAR(50) DEFAULT 'Tersedia'
 );
 
 CREATE TABLE IF NOT EXISTS organisasi (

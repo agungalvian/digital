@@ -35,32 +35,49 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">4. Status Aktivitas</label>
+                            <select name="status" class="form-select" required>
+                                <option value="Usulan">1. Usulan</option>
+                                <option value="Analisis">2. Analisis</option>
+                                <option value="Persetujuan Perencanaan">3. Persetujuan Perencanaan</option>
+                                <option value="Forum Group Discussion">4. Forum Group Discussion</option>
+                                <option value="Perencanaan">5. Perencanaan</option>
+                                <option value="Perjanjian Kerjasama">6. Perjanjian Kerjasama</option>
+                                <option value="Adendum Perjanjian Kerjasama">7. Adendum Perjanjian Kerjasama</option>
+                                <option value="Pengembangan">8. Pengembangan</option>
+                                <option value="SIT/UAT">9. SIT/UAT</option>
+                                <option value="Go Live">10. Go Live</option>
+                                <option value="Monitoring implementasi">11. Monitoring implementasi</option>
+                                <option value="Selesai">12. Selesai</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">5. Output (Keluaran)</label>
-                            <textarea name="output" class="form-control" rows="2" placeholder="Sistem baru, API dokumen, dll..."></textarea>
+                            <textarea name="output" class="form-control" rows="2" placeholder="Sistem baru, API dokumen, dll..." required></textarea>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label">6. Outcome (Hasil/Dampak)</label>
-                            <textarea name="outcome" class="form-control" rows="2" placeholder="Efisiensi waktu, peningkatan layanan..."></textarea>
+                            <textarea name="outcome" class="form-control" rows="2" placeholder="Efisiensi waktu, peningkatan layanan..." required></textarea>
                         </div>
 
                         <h6 class="text-primary border-bottom pb-2 mt-4 mb-3">B. Filter Aspek Terkait (Multi-Pilihan)</h6>
                         <div class="mb-3">
                             <label class="form-label text-muted small">Pilih Pilar</label>
-                            <select id="combo_pilar" class="form-select mb-2">
-                                <option value="">-- Pilih Pilar --</option>
-                            </select>
+                            <div id="container_pilar" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Memuat data pilar...</small>
+                            </div>
                             
                             <label class="form-label text-muted small">Pilih Kelompok</label>
-                            <select id="combo_kelompok" class="form-select mb-2" disabled>
-                                <option value="">-- Pilih Kelompok --</option>
-                            </select>
+                            <div id="container_kelompok" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih pilar terlebih dahulu...</small>
+                            </div>
                             
                             <label class="form-label">4. Aspek Terpilih (Bisa pilih lebih dari satu)</label>
-                            <select name="aspek[]" id="combo_aspek" class="form-select" multiple disabled>
-                                <!-- Options diisi via JS -->
-                            </select>
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tahan tombol <code>Ctrl</code> (Windows) / <code>Cmd</code> (Mac) untuk memilih multi-aspek.</small>
+                            <div id="container_aspek" class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih kelompok terlebih dahulu...</small>
+                            </div>
                         </div>
                     </div>
                     
@@ -70,24 +87,24 @@
                         
                         <div class="mb-3">
                             <label class="form-label text-muted small">Pilih Deputi (Unit Internal)</label>
-                            <select id="combo_deputi" class="form-select mb-2">
-                                <option value="">-- Pilih Deputi --</option>
-                            </select>
+                            <div id="container_deputi" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Memuat data deputi...</small>
+                            </div>
 
                             <label class="form-label">7. Direktorat / Unit Internal</label>
-                            <select name="unit_internal" id="combo_direktorat" class="form-select" readonly required>
-                                <option value="">-- Pilih Direktorat --</option>
-                            </select>
+                            <div id="container_direktorat" class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih deputi terlebih dahulu...</small>
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">8. Nama Mitra</label>
-                                <input type="text" name="nama_mitra" class="form-control" placeholder="Contoh: PT. ABC / Kemen PUPR">
+                                <input type="text" name="nama_mitra" class="form-control" placeholder="Contoh: PT. ABC / Kemen PUPR" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">9. Jenis Mitra</label>
-                                <select name="jenis_mitra" class="form-select">
+                                <select name="jenis_mitra" class="form-select" required>
                                     <option value="">-- Pilih --</option>
                                     <option value="Pemerintah Pusat">Pemerintah Pusat</option>
                                     <option value="Pemerintah Daerah">Pemerintah Daerah</option>
@@ -101,18 +118,18 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">10. Prediksi Pelaksanaan</label>
-                                <input type="week" name="prediksi_pelaksanaan" class="form-control" value="">
+                                <input type="week" name="prediksi_pelaksanaan" class="form-control" value="" required>
                                 <small class="text-muted">Pilih Minggu & Tahun</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">11. Target Pelaksanaan</label>
-                                <input type="week" name="target_pelaksanaan" class="form-control" value="">
+                                <input type="week" name="target_pelaksanaan" class="form-control" value="" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">12. Teknik Integrasi</label>
-                            <select name="teknik_integrasi" class="form-select">
+                            <select name="teknik_integrasi" class="form-select" required>
                                 <option value="">-- Pilih Teknik IT --</option>
                                 <option value="RESTful API (JSON)">RESTful API (JSON)</option>
                                 <option value="SOAP (XML)">SOAP (XML)</option>
@@ -125,7 +142,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">13. Pola Integrasi</label>
-                            <select name="pola_integrasi" class="form-select">
+                            <select name="pola_integrasi" class="form-select" required>
                                 <option value="">-- Pilih Pola --</option>
                                 <option value="Synchronous (Real-time P2P)">Synchronous (Real-time P2P)</option>
                                 <option value="Asynchronous (Message Queue / Kafka)">Asynchronous (Message Queue / Kafka)</option>
@@ -137,7 +154,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">14. Risiko IT</label>
-                                <select name="risiko" class="form-select">
+                                <select name="risiko" class="form-select" required>
                                     <option value="">-- Pilih Risiko --</option>
                                     <option value="Kebocoran Data (Security)">Kebocoran Data (Security)</option>
                                     <option value="Latensi / Downtime (Availability)">Latensi / Downtime</option>
@@ -147,7 +164,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">15. Kontrol / Mitigasi</label>
-                                <select name="kontrol" class="form-select">
+                                <select name="kontrol" class="form-select" required>
                                     <option value="">-- Pilih Kontrol --</option>
                                     <option value="Enkripsi & IAM">Enkripsi & IAM</option>
                                     <option value="Load Balancer & HA">Load Balancer & HA</option>
@@ -176,12 +193,12 @@
     let dataAspek = [];
     let dataOrganisasi = {};
 
-    const cmbPilar = document.getElementById('combo_pilar');
-    const cmbKelompok = document.getElementById('combo_kelompok');
-    const cmbAspek = document.getElementById('combo_aspek');
+    const conPilar = document.getElementById('container_pilar');
+    const conKelompok = document.getElementById('container_kelompok');
+    const conAspek = document.getElementById('container_aspek');
 
-    const cmbDeputi = document.getElementById('combo_deputi');
-    const cmbDirektorat = document.getElementById('combo_direktorat');
+    const conDeputi = document.getElementById('container_deputi');
+    const conDirektorat = document.getElementById('container_direktorat');
 
     document.addEventListener("DOMContentLoaded", () => {
         fetch('/api/data').then(res => res.json()).then(data => {
@@ -191,10 +208,14 @@
             dataOrganisasi = data.organisasi;
             
             if(Array.isArray(dataPilar)) {
-                dataPilar.forEach(p => {
-                    let opt = new Option(p.kode_pilar + " - " + p.nama_pilar, p.kode_pilar);
-                    cmbPilar.add(opt);
+                let html = '';
+                dataPilar.forEach((p, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input pilar-cb" type="checkbox" value="${p.kode_pilar}" id="pilar_${idx}">
+                        <label class="form-check-label" for="pilar_${idx}">${p.kode_pilar} - ${p.nama_pilar}</label>
+                    </div>`;
                 });
+                conPilar.innerHTML = html;
             }
             
             let listDeputi = [];
@@ -203,65 +224,97 @@
             } catch(e) { console.warn("Format JSON Organisasi berbeda", e); }
 
             if(listDeputi.length > 0) {
-                listDeputi.forEach((dep, index) => {
-                    let opt = new Option(dep.jabatan, index);
-                    cmbDeputi.add(opt);
+                let html = '';
+                listDeputi.forEach((dep, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input deputi-cb" type="checkbox" value="${idx}" id="deputi_${idx}">
+                        <label class="form-check-label" for="deputi_${idx}">${dep.jabatan}</label>
+                    </div>`;
                 });
+                conDeputi.innerHTML = html;
             }
         });
 
-        cmbPilar.addEventListener("change", function() {
-            cmbKelompok.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
-            cmbAspek.innerHTML = '';
-            cmbKelompok.disabled = true;
-            cmbAspek.disabled = true;
+        conPilar.addEventListener("change", function(e) {
+            if(e.target.classList.contains('pilar-cb')) {
+                const selectedPilars = Array.from(conPilar.querySelectorAll('input:checked')).map(cb => cb.value);
+                
+                conKelompok.innerHTML = '';
+                conAspek.innerHTML = '<small class="text-muted">Pilih kelompok terlebih dahulu...</small>';
 
-            const selectedPilar = this.value;
-            if(selectedPilar && Array.isArray(dataKelompok)) {
-                const filteredKel = dataKelompok.filter(k => k.kode_pilar === selectedPilar);
-                if(filteredKel.length > 0) {
-                    cmbKelompok.disabled = false;
-                    filteredKel.forEach(k => {
-                        let opt = new Option(k.kode_kelompok + " - " + k.nama_kelompok, k.kode_kelompok);
-                        cmbKelompok.add(opt);
-                    });
-                }
-            }
-        });
-
-        cmbKelompok.addEventListener("change", function() {
-            cmbAspek.innerHTML = '';
-            cmbAspek.disabled = true;
-
-            const selectedKel = this.value;
-            if(selectedKel && Array.isArray(dataAspek)) {
-                const filteredAspek = dataAspek.filter(a => a.kode_kelompok === selectedKel);
-                if(filteredAspek.length > 0) {
-                    cmbAspek.disabled = false;
-                    filteredAspek.forEach(a => {
-                        let opt = new Option("["+a.kode_aspek+"] " + a.nama_aspek, a.nama_aspek);
-                        cmbAspek.add(opt);
-                    });
+                if(selectedPilars.length > 0 && Array.isArray(dataKelompok)) {
+                    const filteredKel = dataKelompok.filter(k => selectedPilars.includes(k.kode_pilar));
+                    if(filteredKel.length > 0) {
+                        let html = '';
+                        filteredKel.forEach((k, idx) => {
+                            html += `<div class="form-check">
+                                <input class="form-check-input kel-cb" type="checkbox" value="${k.kode_kelompok}" id="kel_${idx}">
+                                <label class="form-check-label" for="kel_${idx}">${k.kode_kelompok} - ${k.nama_kelompok}</label>
+                            </div>`;
+                        });
+                        conKelompok.innerHTML = html;
+                    } else {
+                        conKelompok.innerHTML = '<small class="text-muted">Tidak ada kelompok untuk pilar ini.</small>';
+                    }
                 } else {
-                     cmbAspek.innerHTML = '<option disabled>Aspek kosong di kelompok ini</option>';
+                    conKelompok.innerHTML = '<small class="text-muted">Pilih pilar terlebih dahulu...</small>';
                 }
             }
         });
 
-        cmbDeputi.addEventListener("change", function() {
-            cmbDirektorat.innerHTML = '<option value="">-- Pilih Direktorat --</option>';
-            cmbDirektorat.readOnly = true;
+        conKelompok.addEventListener("change", function(e) {
+            if(e.target.classList.contains('kel-cb')) {
+                const selectedKel = Array.from(conKelompok.querySelectorAll('input:checked')).map(cb => cb.value);
+                conAspek.innerHTML = '';
 
-            const idx = this.value;
-            if(idx !== "") {
-                const direkData = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].direktorat;
-                if(direkData && direkData.length > 0) {
-                    cmbDirektorat.readOnly = false;
-                    direkData.forEach(dir => {
-                        let valText = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan + " | " + dir.nama;
-                        let opt = new Option(dir.nama, valText);
-                        cmbDirektorat.add(opt);
+                if(selectedKel.length > 0 && Array.isArray(dataAspek)) {
+                    const filteredAspek = dataAspek.filter(a => selectedKel.includes(a.kode_kelompok));
+                    if(filteredAspek.length > 0) {
+                        let html = '';
+                        filteredAspek.forEach((a, idx) => {
+                            html += `<div class="form-check">
+                                <input class="form-check-input aspek-cb" name="aspek[]" type="checkbox" value="${a.nama_aspek}" id="aspek_${idx}">
+                                <label class="form-check-label" for="aspek_${idx}">[${a.kode_aspek}] ${a.nama_aspek}</label>
+                            </div>`;
+                        });
+                        conAspek.innerHTML = html;
+                    } else {
+                         conAspek.innerHTML = '<small class="text-muted">Aspek kosong di kelompok ini.</small>';
+                    }
+                } else {
+                    conAspek.innerHTML = '<small class="text-muted">Pilih kelompok terlebih dahulu...</small>';
+                }
+            }
+        });
+
+        conDeputi.addEventListener("change", function(e) {
+            if(e.target.classList.contains('deputi-cb')) {
+                const selectedIdxs = Array.from(conDeputi.querySelectorAll('input:checked')).map(cb => cb.value);
+                conDirektorat.innerHTML = '';
+
+                if(selectedIdxs.length > 0) {
+                    let html = '';
+                    let d_idx = 0;
+                    selectedIdxs.forEach(idx => {
+                        const direkData = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].direktorat;
+                        if(direkData && direkData.length > 0) {
+                            direkData.forEach(dir => {
+                                let valText = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan + " | " + dir.nama;
+                                html += `<div class="form-check">
+                                    <input class="form-check-input dir-cb" name="unit_internal[]" type="checkbox" value="${valText}" id="dir_${d_idx}">
+                                    <label class="form-check-label" for="dir_${d_idx}">${dir.nama} <small class="text-muted">(${dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan})</small></label>
+                                </div>`;
+                                d_idx++;
+                            });
+                        }
                     });
+                    if (html === '') {
+                        conDirektorat.innerHTML = '<small class="text-muted">Tidak ada direktorat di deputi ini.</small>';
+                    } else {
+                        conDirektorat.innerHTML = html;
+                    }
+                } else {
+                    conDirektorat.innerHTML = '<small class="text-muted">Pilih deputi terlebih dahulu...</small>';
                 }
             }
         });

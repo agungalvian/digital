@@ -29,7 +29,24 @@
                             <select name="jenis_kolaborasi" class="form-select" required>
                                 <option value="">-- Pilih Jenis --</option>
                                 <option value="Kolaborasi" <%= data.jenis_kolaborasi === 'Kolaborasi' ? 'selected' : '' %>>Kolaborasi</option>
-                                <option value="Non Kolaborasi" <%= data.jenis_kolaborasi === 'Non Kolaborasi' ? 'selected' : '' %>>Non Kolaborasi</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">4. Status Aktivitas</label>
+                            <select name="status" class="form-select" required>
+                                <option value="Usulan" <%= data.status === 'Usulan' ? 'selected' : '' %>>1. Usulan</option>
+                                <option value="Analisis" <%= data.status === 'Analisis' ? 'selected' : '' %>>2. Analisis</option>
+                                <option value="Persetujuan Perencanaan" <%= data.status === 'Persetujuan Perencanaan' ? 'selected' : '' %>>3. Persetujuan Perencanaan</option>
+                                <option value="Forum Group Discussion" <%= data.status === 'Forum Group Discussion' ? 'selected' : '' %>>4. Forum Group Discussion</option>
+                                <option value="Perencanaan" <%= data.status === 'Perencanaan' ? 'selected' : '' %>>5. Perencanaan</option>
+                                <option value="Perjanjian Kerjasama" <%= data.status === 'Perjanjian Kerjasama' ? 'selected' : '' %>>6. Perjanjian Kerjasama</option>
+                                <option value="Adendum Perjanjian Kerjasama" <%= data.status === 'Adendum Perjanjian Kerjasama' ? 'selected' : '' %>>7. Adendum Perjanjian Kerjasama</option>
+                                <option value="Pengembangan" <%= data.status === 'Pengembangan' ? 'selected' : '' %>>8. Pengembangan</option>
+                                <option value="SIT/UAT" <%= data.status === 'SIT/UAT' ? 'selected' : '' %>>9. SIT/UAT</option>
+                                <option value="Go Live" <%= data.status === 'Go Live' ? 'selected' : '' %>>10. Go Live</option>
+                                <option value="Monitoring implementasi" <%= data.status === 'Monitoring implementasi' ? 'selected' : '' %>>11. Monitoring implementasi</option>
+                                <option value="Selesai" <%= data.status === 'Selesai' ? 'selected' : '' %>>12. Selesai</option>
                             </select>
                         </div>
 
@@ -46,20 +63,19 @@
                         <h6 class="text-primary border-bottom pb-2 mt-4 mb-3">B. Filter Aspek Terkait (Multi-Pilihan)</h6>
                         <div class="mb-3">
                             <label class="form-label text-muted small">Pilih Pilar</label>
-                            <select id="combo_pilar" class="form-select mb-2">
-                                <option value="">-- Pilih Pilar --</option>
-                            </select>
+                            <div id="container_pilar" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Memuat data pilar...</small>
+                            </div>
                             
                             <label class="form-label text-muted small">Pilih Kelompok</label>
-                            <select id="combo_kelompok" class="form-select mb-2" disabled>
-                                <option value="">-- Pilih Kelompok --</option>
-                            </select>
+                            <div id="container_kelompok" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih pilar terlebih dahulu...</small>
+                            </div>
                             
                             <label class="form-label">4. Aspek Terpilih (Bisa pilih lebih dari satu)</label>
-                            <select name="aspek[]" id="combo_aspek" class="form-select" multiple disabled>
-                                <!-- Options diisi via JS -->
-                            </select>
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tahan tombol <code>Ctrl</code> (Windows) / <code>Cmd</code> (Mac) untuk memilih multi-aspek.</small>
+                            <div id="container_aspek" class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih kelompok terlebih dahulu...</small>
+                            </div>
                         </div>
                     </div>
                     
@@ -69,14 +85,14 @@
                         
                         <div class="mb-3">
                             <label class="form-label text-muted small">Pilih Deputi (Unit Internal)</label>
-                            <select id="combo_deputi" class="form-select mb-2">
-                                <option value="">-- Pilih Deputi --</option>
-                            </select>
+                            <div id="container_deputi" class="border p-2 mb-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Memuat data deputi...</small>
+                            </div>
 
                             <label class="form-label">7. Direktorat / Unit Internal</label>
-                            <select name="unit_internal" id="combo_direktorat" class="form-select" readonly required>
-                                <option value="">-- Pilih Direktorat --</option>
-                            </select>
+                            <div id="container_direktorat" class="border p-2 bg-light rounded" style="max-height: 150px; overflow-y: auto;">
+                                <small class="text-muted">Pilih deputi terlebih dahulu...</small>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -170,20 +186,28 @@
 </div>
 
 <script>
-    const savedAspek = <%- JSON.stringify(data.aspek || []) %>;
-    const savedUnitInternal = "<%= data.unit_internal %>";
+    let savedAspek = <%- JSON.stringify(data.aspek || []) %>;
+    let savedUnitInternal = <%- JSON.stringify(data.unit_internal || []) %>;
+    if (typeof savedUnitInternal === 'string') {
+        try {
+            savedUnitInternal = JSON.parse(savedUnitInternal);
+            if (!Array.isArray(savedUnitInternal)) savedUnitInternal = [savedUnitInternal];
+        } catch(e) {
+            savedUnitInternal = [savedUnitInternal];
+        }
+    }
 
     let dataPilar = [];
     let dataKelompok = [];
     let dataAspek = [];
     let dataOrganisasi = {};
 
-    const cmbPilar = document.getElementById('combo_pilar');
-    const cmbKelompok = document.getElementById('combo_kelompok');
-    const cmbAspek = document.getElementById('combo_aspek');
+    const conPilar = document.getElementById('container_pilar');
+    const conKelompok = document.getElementById('container_kelompok');
+    const conAspek = document.getElementById('container_aspek');
 
-    const cmbDeputi = document.getElementById('combo_deputi');
-    const cmbDirektorat = document.getElementById('combo_direktorat');
+    const conDeputi = document.getElementById('container_deputi');
+    const conDirektorat = document.getElementById('container_direktorat');
 
     document.addEventListener("DOMContentLoaded", () => {
         fetch('/api/data').then(res => res.json()).then(data => {
@@ -193,10 +217,14 @@
             dataOrganisasi = data.organisasi;
             
             if(Array.isArray(dataPilar)) {
-                dataPilar.forEach(p => {
-                    let opt = new Option(p.kode_pilar + " - " + p.nama_pilar, p.kode_pilar);
-                    cmbPilar.add(opt);
+                let html = '';
+                dataPilar.forEach((p, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input pilar-cb" type="checkbox" value="${p.kode_pilar}" id="pilar_${idx}">
+                        <label class="form-check-label" for="pilar_${idx}">${p.kode_pilar} - ${p.nama_pilar}</label>
+                    </div>`;
                 });
+                conPilar.innerHTML = html;
             }
             
             let listDeputi = [];
@@ -205,81 +233,166 @@
             } catch(e) { console.warn("Format JSON Organisasi berbeda", e); }
 
             if(listDeputi.length > 0) {
-                listDeputi.forEach((dep, index) => {
-                    let opt = new Option(dep.jabatan, index);
-                    cmbDeputi.add(opt);
+                let html = '';
+                listDeputi.forEach((dep, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input deputi-cb" type="checkbox" value="${idx}" id="deputi_${idx}">
+                        <label class="form-check-label" for="deputi_${idx}">${dep.jabatan}</label>
+                    </div>`;
                 });
+                conDeputi.innerHTML = html;
             }
         });
 
-        cmbPilar.addEventListener("change", function() {
-            cmbKelompok.innerHTML = '<option value="">-- Pilih Kelompok --</option>';
-            cmbAspek.innerHTML = '';
-            cmbKelompok.disabled = true;
-            cmbAspek.disabled = true;
+        conPilar.addEventListener("change", function(e) {
+            if(e.target.classList.contains('pilar-cb')) {
+                const selectedPilars = Array.from(conPilar.querySelectorAll('input:checked')).map(cb => cb.value);
+                
+                conKelompok.innerHTML = '';
+                conAspek.innerHTML = '<small class="text-muted">Pilih kelompok terlebih dahulu...</small>';
 
-            const selectedPilar = this.value;
-            if(selectedPilar && Array.isArray(dataKelompok)) {
-                const filteredKel = dataKelompok.filter(k => k.kode_pilar === selectedPilar);
-                if(filteredKel.length > 0) {
-                    cmbKelompok.disabled = false;
-                    filteredKel.forEach(k => {
-                        let opt = new Option(k.kode_kelompok + " - " + k.nama_kelompok, k.kode_kelompok);
-                        cmbKelompok.add(opt);
-                    });
-                }
-            }
-        });
-
-        cmbKelompok.addEventListener("change", function() {
-            cmbAspek.innerHTML = '';
-            cmbAspek.disabled = true;
-
-            const selectedKel = this.value;
-            if(selectedKel && Array.isArray(dataAspek)) {
-                const filteredAspek = dataAspek.filter(a => a.kode_kelompok === selectedKel);
-                if(filteredAspek.length > 0) {
-                    cmbAspek.disabled = false;
-                    filteredAspek.forEach(a => {
-                        let opt = new Option("["+a.kode_aspek+"] " + a.nama_aspek, a.nama_aspek);
-                        cmbAspek.add(opt);
-                    });
+                if(selectedPilars.length > 0 && Array.isArray(dataKelompok)) {
+                    const filteredKel = dataKelompok.filter(k => selectedPilars.includes(k.kode_pilar));
+                    if(filteredKel.length > 0) {
+                        let html = '';
+                        filteredKel.forEach((k, idx) => {
+                            html += `<div class="form-check">
+                                <input class="form-check-input kel-cb" type="checkbox" value="${k.kode_kelompok}" id="kel_${idx}">
+                                <label class="form-check-label" for="kel_${idx}">${k.kode_kelompok} - ${k.nama_kelompok}</label>
+                            </div>`;
+                        });
+                        conKelompok.innerHTML = html;
+                    } else {
+                        conKelompok.innerHTML = '<small class="text-muted">Tidak ada kelompok untuk pilar ini.</small>';
+                    }
                 } else {
-                     cmbAspek.innerHTML = '<option disabled>Aspek kosong di kelompok ini</option>';
+                    conKelompok.innerHTML = '<small class="text-muted">Pilih pilar terlebih dahulu...</small>';
                 }
             }
         });
 
-        cmbDeputi.addEventListener("change", function() {
-            cmbDirektorat.innerHTML = '<option value="">-- Pilih Direktorat --</option>';
-            cmbDirektorat.readOnly = true;
+        conKelompok.addEventListener("change", function(e) {
+            if(e.target.classList.contains('kel-cb')) {
+                const selectedKel = Array.from(conKelompok.querySelectorAll('input:checked')).map(cb => cb.value);
+                conAspek.innerHTML = '';
 
-            const idx = this.value;
-            if(idx !== "") {
-                const direkData = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].direktorat;
-                if(direkData && direkData.length > 0) {
-                    cmbDirektorat.readOnly = false;
-                    direkData.forEach(dir => {
-                        let valText = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan + " | " + dir.nama;
-                        let opt = new Option(dir.nama, valText);
-                        cmbDirektorat.add(opt);
+                // We need to keep savedAspek that are not part of the filtered list to avoid unchecking them implicitly?
+                // Actually, just rendering the filteredAspek is fine, user will see what's checked.
+                if(selectedKel.length > 0 && Array.isArray(dataAspek)) {
+                    const filteredAspek = dataAspek.filter(a => selectedKel.includes(a.kode_kelompok));
+                    if(filteredAspek.length > 0) {
+                        let html = '';
+                        filteredAspek.forEach((a, idx) => {
+                            const isChecked = savedAspek.includes(a.nama_aspek) ? 'checked' : '';
+                            html += `<div class="form-check">
+                                <input class="form-check-input aspek-cb" name="aspek[]" type="checkbox" value="${a.nama_aspek}" id="aspek_${idx}" ${isChecked}>
+                                <label class="form-check-label" for="aspek_${idx}">[${a.kode_aspek}] ${a.nama_aspek}</label>
+                            </div>`;
+                        });
+                        
+                        // Append any savedAspek that are NOT in filteredAspek so they don't get lost on save
+                        savedAspek.forEach((saved, idx) => {
+                            if(!filteredAspek.find(a => a.nama_aspek === saved)) {
+                                html += `<div class="form-check" style="display:none;">
+                                    <input class="form-check-input aspek-cb" name="aspek[]" type="checkbox" value="${saved}" id="saved_aspek_${idx}" checked>
+                                </div>`;
+                            }
+                        });
+
+                        conAspek.innerHTML = html;
+                    } else {
+                         conAspek.innerHTML = '<small class="text-muted">Aspek kosong di kelompok ini.</small>';
+                    }
+                } else {
+                    conAspek.innerHTML = '<small class="text-muted">Pilih kelompok terlebih dahulu...</small>';
+                    // Restore original saved aspects so they don't get lost if user checks/unchecks everything
+                    renderSavedAspek();
+                }
+            }
+        });
+
+        conDeputi.addEventListener("change", function(e) {
+            if(e.target.classList.contains('deputi-cb')) {
+                const selectedIdxs = Array.from(conDeputi.querySelectorAll('input:checked')).map(cb => cb.value);
+                conDirektorat.innerHTML = '';
+
+                if(selectedIdxs.length > 0) {
+                    let html = '';
+                    let d_idx = 0;
+                    selectedIdxs.forEach(idx => {
+                        const direkData = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].direktorat;
+                        if(direkData && direkData.length > 0) {
+                            direkData.forEach(dir => {
+                                let valText = dataOrganisasi.komisioner.unit_di_bawah.filter(u => u.jabatan)[idx].jabatan + " | " + dir.nama;
+                                const isChecked = savedUnitInternal.includes(valText) ? 'checked' : '';
+                                html += `<div class="form-check">
+                                    <input class="form-check-input direk-cb" name="unit_internal[]" type="checkbox" value="${valText}" id="dir_${d_idx}" ${isChecked}>
+                                    <label class="form-check-label" for="dir_${d_idx}">${valText}</label>
+                                </div>`;
+                                d_idx++;
+                            });
+                        }
                     });
+                    
+                    // Append saved units that aren't visible
+                    savedUnitInternal.forEach((saved, s_idx) => {
+                        if(html.indexOf(saved) === -1) {
+                            html += `<div class="form-check" style="display:none;">
+                                <input class="form-check-input direk-cb" name="unit_internal[]" type="checkbox" value="${saved}" id="saved_dir_${s_idx}" checked>
+                            </div>`;
+                        }
+                    });
+
+                    conDirektorat.innerHTML = html;
+                } else {
+                    conDirektorat.innerHTML = '<small class="text-muted">Pilih deputi terlebih dahulu...</small>';
+                    renderSavedUnitInternal();
                 }
             }
         });
 
-        // Initialize values based on savedUnitInternal and savedAspek
-        // We add existing options directly so they don't get wiped if pilar/kelompok hasn't loaded
-        if (savedUnitInternal) {
-            cmbDirektorat.innerHTML = `<option value="${savedUnitInternal}" selected>${savedUnitInternal}</option>`;
+        function renderSavedAspek() {
+            if (savedAspek && Array.isArray(savedAspek) && savedAspek.length > 0) {
+                let html = '<div class="alert alert-info py-1 px-2 mb-2"><small>Aspek sebelumnya yang tersimpan:</small></div>';
+                savedAspek.forEach((asp, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input aspek-cb" name="aspek[]" type="checkbox" value="${asp}" id="init_asp_${idx}" checked>
+                        <label class="form-check-label" for="init_asp_${idx}">${asp}</label>
+                    </div>`;
+                });
+                conAspek.innerHTML = html;
+            }
         }
         
-        if (savedAspek && Array.isArray(savedAspek)) {
-            cmbAspek.disabled = false;
-            savedAspek.forEach(asp => {
-                cmbAspek.innerHTML += `<option value="${asp}" selected>${asp}</option>`;
-            });
+        function renderSavedUnitInternal() {
+            if (savedUnitInternal && Array.isArray(savedUnitInternal) && savedUnitInternal.length > 0) {
+                let html = '<div class="alert alert-info py-1 px-2 mb-2"><small>Unit sebelumnya yang tersimpan:</small></div>';
+                savedUnitInternal.forEach((uni, idx) => {
+                    html += `<div class="form-check">
+                        <input class="form-check-input direk-cb" name="unit_internal[]" type="checkbox" value="${uni}" id="init_uni_${idx}" checked>
+                        <label class="form-check-label" for="init_uni_${idx}">${uni}</label>
+                    </div>`;
+                });
+                conDirektorat.innerHTML = html;
+            }
         }
+
+        // Initialize display of saved values
+        renderSavedAspek();
+        renderSavedUnitInternal();
+
+        // Listen for unchecking to remove from saved array so it doesn't stay hidden forever
+        conAspek.addEventListener("change", function(e) {
+            if(e.target.classList.contains('aspek-cb') && !e.target.checked) {
+                savedAspek = savedAspek.filter(v => v !== e.target.value);
+            }
+        });
+        
+        conDirektorat.addEventListener("change", function(e) {
+            if(e.target.classList.contains('direk-cb') && !e.target.checked) {
+                savedUnitInternal = savedUnitInternal.filter(v => v !== e.target.value);
+            }
+        });
 
     });
 </script>

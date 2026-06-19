@@ -20,8 +20,8 @@ const pool = new Pool({
     port: process.env.DB_PORT || 5432,
 });
 
-// Otomatis membuat admin jika tabel users kosong
-async function ensureAdminUser() {
+// Otomatis membuat admin jika tabel users kosong & migrasi schema
+async function ensureDbInit() {
     try {
         // Cek tabel users
         const res = await pool.query("SELECT to_regclass('public.users') as exists");
@@ -37,11 +37,33 @@ async function ensureAdminUser() {
                 console.log("Auto-seeded default admin user: admin / admin123");
             }
         }
+
+        // Migrasi untuk kolom status_ketersediaan pada aspek
+        const aspekColRes = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='aspek' AND column_name='status_ketersediaan';
+        `);
+        if (aspekColRes.rows.length === 0) {
+            await pool.query(`ALTER TABLE aspek ADD COLUMN status_ketersediaan VARCHAR(50) DEFAULT 'Tersedia';`);
+            console.log("Migrasi schema: menambahkan kolom status_ketersediaan pada tabel aspek.");
+        }
+
+        // Migrasi untuk kolom status pada aktivitas
+        const aktivitasColRes = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='aktivitas' AND column_name='status';
+        `);
+        if (aktivitasColRes.rows.length === 0) {
+            await pool.query(`ALTER TABLE aktivitas ADD COLUMN status VARCHAR(100) DEFAULT 'Usulan';`);
+            console.log("Migrasi schema: menambahkan kolom status pada tabel aktivitas.");
+        }
     } catch (e) {
-        console.error("Error ensuring admin user:", e);
+        console.error("Error ensuring db init:", e);
     }
 }
-ensureAdminUser();
+ensureDbInit();
 
 // Middleware
 app.set('view engine', 'ejs');
@@ -190,19 +212,20 @@ app.post('/aktivitas', requireAuth, async (req, res) => {
                 nama_aktivitas, deskripsi, jenis_kolaborasi, aspek,
                 output, outcome, unit_internal, nama_mitra, jenis_mitra,
                 prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-                pola_integrasi, risiko, kontrol
+                pola_integrasi, risiko, kontrol, status
             } = req.body;
             
             const aspekArray = Array.isArray(aspek) ? aspek : (aspek ? [aspek] : []);
+            const unitInternalArray = Array.isArray(unit_internal) ? unit_internal : (unit_internal ? [unit_internal] : []);
 
             await pool.query(
                 `INSERT INTO aktivitas 
-                (id, nama_aktivitas, deskripsi, jenis_kolaborasi, aspek, output, outcome, unit_internal, nama_mitra, jenis_mitra, prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+                (id, nama_aktivitas, deskripsi, jenis_kolaborasi, aspek, output, outcome, unit_internal, nama_mitra, jenis_mitra, prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
                 [
                     actId, nama_aktivitas, deskripsi, jenis_kolaborasi, JSON.stringify(aspekArray),
-                    output, outcome, unit_internal, nama_mitra, jenis_mitra, prediksi_pelaksanaan,
-                    target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol
+                    output, outcome, JSON.stringify(unitInternalArray), nama_mitra, jenis_mitra, prediksi_pelaksanaan,
+                    target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status || 'Usulan'
                 ]
             );
             res.redirect('/aktivitas?msg=success');
@@ -242,13 +265,17 @@ app.post('/aktivitas/edit/:id', requireAuth, async (req, res) => {
             nama_aktivitas, deskripsi, jenis_kolaborasi, aspek,
             output, outcome, unit_internal, nama_mitra, jenis_mitra,
             prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-            pola_integrasi, risiko, kontrol
+            pola_integrasi, risiko, kontrol, status
         } = req.body;
         
-        // aspek from form is array or string
         let aspekArr = [];
         if (aspek) {
             aspekArr = Array.isArray(aspek) ? aspek : [aspek];
+        }
+
+        let unitArr = [];
+        if (unit_internal) {
+            unitArr = Array.isArray(unit_internal) ? unit_internal : [unit_internal];
         }
 
         await pool.query(
@@ -256,13 +283,13 @@ app.post('/aktivitas/edit/:id', requireAuth, async (req, res) => {
                 nama_aktivitas = $1, deskripsi = $2, jenis_kolaborasi = $3, aspek = $4,
                 output = $5, outcome = $6, unit_internal = $7, nama_mitra = $8, jenis_mitra = $9,
                 prediksi_pelaksanaan = $10, target_pelaksanaan = $11, teknik_integrasi = $12,
-                pola_integrasi = $13, risiko = $14, kontrol = $15
-            WHERE id = $16`,
+                pola_integrasi = $13, risiko = $14, kontrol = $15, status = $16
+            WHERE id = $17`,
             [
                 nama_aktivitas, deskripsi, jenis_kolaborasi, JSON.stringify(aspekArr),
-                output, outcome, unit_internal, nama_mitra, jenis_mitra,
+                output, outcome, JSON.stringify(unitArr), nama_mitra, jenis_mitra,
                 prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-                pola_integrasi, risiko, kontrol, req.params.id
+                pola_integrasi, risiko, kontrol, status || 'Usulan', req.params.id
             ]
         );
         res.redirect('/aktivitas?msg=updated');
@@ -300,6 +327,22 @@ app.get('/manajemen/users', requireAuth, async (req, res) => {
         res.render('manajemen/users', { data: result.rows, error: null });
     } catch (err) {
         res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/manajemen/users', requireAuth, async (req, res) => {
+    const { action, username, password, role, id } = req.body;
+    try {
+        if (action === 'add') {
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, hashedPassword, role]);
+        } else if (action === 'delete') {
+            await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        }
+        res.redirect('/manajemen/users');
+    } catch (err) {
+        res.status(500).send('Error memproses data user');
     }
 });
 
@@ -342,7 +385,18 @@ app.post('/manajemen/kelompok', requireAuth, async (req, res) => {
     const { action, kode_kelompok, kode_pilar, nama_kelompok } = req.body;
     try {
         if (action === 'add') {
-            await pool.query('INSERT INTO kelompok (kode_kelompok, kode_pilar, nama_kelompok) VALUES ($1, $2, $3)', [kode_kelompok, kode_pilar, nama_kelompok]);
+            // Auto-generate kode_kelompok based on kode_pilar
+            let genKode = kode_kelompok;
+            if (!genKode) {
+                const maxRes = await pool.query('SELECT MAX(kode_kelompok) FROM kelompok WHERE kode_pilar = $1', [kode_pilar]);
+                let nextNum = 1;
+                if (maxRes.rows[0].max) {
+                    const parts = maxRes.rows[0].max.split('.');
+                    nextNum = parseInt(parts[parts.length - 1]) + 1;
+                }
+                genKode = `${kode_pilar}.${nextNum.toString().padStart(3, '0')}`;
+            }
+            await pool.query('INSERT INTO kelompok (kode_kelompok, kode_pilar, nama_kelompok) VALUES ($1, $2, $3)', [genKode, kode_pilar, nama_kelompok]);
         } else if (action === 'delete') {
             await pool.query('DELETE FROM kelompok WHERE kode_kelompok = $1', [kode_kelompok]);
         }
@@ -365,11 +419,24 @@ app.get('/manajemen/aspek', requireAuth, async (req, res) => {
 });
 
 app.post('/manajemen/aspek', requireAuth, async (req, res) => {
-    const { action, kode_aspek, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek } = req.body;
+    const { action, kode_aspek, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek, status_ketersediaan, id_lama } = req.body;
     try {
         if (action === 'add') {
-            await pool.query('INSERT INTO aspek (kode_aspek, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek) VALUES ($1, $2, $3, $4, $5)', 
-            [kode_aspek, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek]);
+            let genKode = kode_aspek;
+            if (!genKode) {
+                const maxRes = await pool.query('SELECT MAX(kode_aspek) FROM aspek WHERE kode_kelompok = $1', [kode_kelompok]);
+                let nextNum = 1;
+                if (maxRes.rows[0].max) {
+                    const parts = maxRes.rows[0].max.split('.');
+                    nextNum = parseInt(parts[parts.length - 1]) + 1;
+                }
+                genKode = `${kode_kelompok}.${nextNum.toString().padStart(3, '0')}`;
+            }
+            await pool.query('INSERT INTO aspek (kode_aspek, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek, status_ketersediaan) VALUES ($1, $2, $3, $4, $5, $6)', 
+            [genKode, kode_kelompok, kode_pilar, nama_aspek, keterangan_aspek, status_ketersediaan || 'Tersedia']);
+        } else if (action === 'edit') {
+            await pool.query('UPDATE aspek SET nama_aspek = $1, keterangan_aspek = $2, status_ketersediaan = $3 WHERE kode_aspek = $4', 
+            [nama_aspek, keterangan_aspek, status_ketersediaan, id_lama]);
         } else if (action === 'delete') {
             await pool.query('DELETE FROM aspek WHERE kode_aspek = $1', [kode_aspek]);
         }
