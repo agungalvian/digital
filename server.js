@@ -164,7 +164,7 @@ app.post('/ganti_password', requireAuth, async (req, res) => {
         }
 
         // Get current user password
-        const userRes = await pool.query('SELECT password FROM users WHERE id = $1', [req.session.userId]);
+        const userRes = await pool.query('SELECT password FROM users WHERE id = $1', [req.session.user.id]);
         if (userRes.rows.length === 0) {
             return res.render('ganti_password', { error: 'User tidak ditemukan.', success: null });
         }
@@ -175,7 +175,7 @@ app.post('/ganti_password', requireAuth, async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(new_password, 10);
-        await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.session.userId]);
+        await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.session.user.id]);
 
         res.render('ganti_password', { error: null, success: 'Password berhasil diubah!' });
     } catch (err) {

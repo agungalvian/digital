@@ -198,9 +198,6 @@
             <li class="<%= path === '/manajemen/users' ? 'active' : '' %>">
                 <a href="/manajemen/users"><i class="bi bi-people"></i> Manajemen User</a>
             </li>
-            <li class="<%= path === '/ganti_password' ? 'active' : '' %>">
-                <a href="/ganti_password"><i class="bi bi-shield-lock"></i> Ganti Password</a>
-            </li>
         </ul>
     </nav>
 
@@ -223,6 +220,8 @@
                             <span class="ms-2 fw-medium"><%= user.username %></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser1">
+                            <li><a class="dropdown-item" href="/ganti_password"><i class="bi bi-shield-lock"></i> Ganti Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                         </ul>
                     </div>
