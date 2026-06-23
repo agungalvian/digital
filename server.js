@@ -252,7 +252,16 @@ app.get('/aktivitas/edit/:id', requireAuth, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM aktivitas WHERE id = $1', [req.params.id]);
         if (result.rows.length === 0) return res.status(404).send('Aktivitas tidak ditemukan');
-        res.render('edit_aktivitas', { data: result.rows[0] });
+        
+        let row = result.rows[0];
+        if (typeof row.unit_internal === 'string' && row.unit_internal.startsWith('[')) {
+            try { row.unit_internal = JSON.parse(row.unit_internal); } catch (e) {}
+        }
+        if (typeof row.aspek === 'string' && row.aspek.startsWith('[')) {
+            try { row.aspek = JSON.parse(row.aspek); } catch (e) {}
+        }
+        
+        res.render('edit_aktivitas', { data: row });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
