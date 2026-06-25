@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS aktivitas (
     risiko VARCHAR(100),
     kontrol VARCHAR(100),
     status VARCHAR(100),
+    catatan TEXT,
+    dokumen JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

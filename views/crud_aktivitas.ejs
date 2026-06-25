@@ -154,8 +154,41 @@
                                                     <p class="small"><strong>Outcome:</strong> <%= row.outcome || '-' %></p>
                                                     
                                                     <p class="mb-1 mt-3 text-muted small">Aspek Terkait</p>
-                                                    <div>
+                                                    <div class="mb-3">
                                                         <% if (row.aspek && Array.isArray(row.aspek) && row.aspek.length > 0) { row.aspek.forEach(asp => { %><span class="badge bg-info text-dark mb-1 me-1"><%= asp %></span><% }) } else { %>-<% } %>
+                                                    </div>
+
+                                                    <p class="mb-1 mt-3 text-muted small">Catatan Tambahan</p>
+                                                    <p class="small text-break" style="white-space: pre-wrap;"><%= row.catatan || '-' %></p>
+
+                                                    <p class="mb-1 mt-3 text-muted small">Dokumen Lampiran</p>
+                                                    <div>
+                                                        <% 
+                                                        let modalDocs = [];
+                                                        if (row.dokumen) {
+                                                            if (typeof row.dokumen === 'string') {
+                                                                if (row.dokumen.startsWith('[')) {
+                                                                    try { modalDocs = JSON.parse(row.dokumen); } catch(e) {}
+                                                                } else {
+                                                                    modalDocs = [row.dokumen];
+                                                                }
+                                                            } else if (Array.isArray(row.dokumen)) {
+                                                                modalDocs = row.dokumen;
+                                                            }
+                                                        }
+                                                        %>
+                                                        <% if (modalDocs && modalDocs.length > 0) { %>
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <% modalDocs.forEach((doc, idx) => { %>
+                                                                    <div class="d-flex justify-content-between align-items-center border p-2 rounded bg-light">
+                                                                        <span class="small text-truncate me-2" style="max-width: 250px;"><i class="bi bi-file-earmark-arrow-down text-primary"></i> <%= doc %></span>
+                                                                        <a href="/uploads/<%= doc %>" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2 small" style="font-size: 0.75rem;"><i class="bi bi-download"></i> Unduh</a>
+                                                                    </div>
+                                                                <% }) %>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <span class="text-muted small">Tidak ada lampiran</span>
+                                                        <% } %>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mb-3 border-start">

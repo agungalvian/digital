@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const fs = require('fs');
 
 dotenv.config();
 
@@ -59,6 +61,32 @@ async function ensureDbInit() {
             await pool.query(`ALTER TABLE aktivitas ADD COLUMN status VARCHAR(100) DEFAULT 'Usulan';`);
             console.log("Migrasi schema: menambahkan kolom status pada tabel aktivitas.");
         }
+
+        // Migrasi untuk kolom catatan pada aktivitas
+        const catatanColRes = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='aktivitas' AND column_name='catatan';
+        `);
+        if (catatanColRes.rows.length === 0) {
+            await pool.query(`ALTER TABLE aktivitas ADD COLUMN catatan TEXT;`);
+            console.log("Migrasi schema: menambahkan kolom catatan pada tabel aktivitas.");
+        }
+
+        // Migrasi untuk kolom dokumen pada aktivitas (menggunakan JSONB untuk multiple upload)
+        const dokumenColRes = await pool.query(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name='aktivitas' AND column_name='dokumen';
+        `);
+        if (dokumenColRes.rows.length === 0) {
+            await pool.query(`ALTER TABLE aktivitas ADD COLUMN dokumen JSONB DEFAULT '[]'::jsonb;`);
+            console.log("Migrasi schema: menambahkan kolom dokumen (JSONB) pada tabel aktivitas.");
+        } else if (dokumenColRes.rows[0].data_type !== 'jsonb') {
+            await pool.query(`ALTER TABLE aktivitas ALTER COLUMN dokumen TYPE JSONB USING CASE WHEN dokumen IS NULL THEN '[]'::jsonb ELSE json_build_array(dokumen)::jsonb END;`);
+            await pool.query(`ALTER TABLE aktivitas ALTER COLUMN dokumen SET DEFAULT '[]'::jsonb;`);
+            console.log("Migrasi schema: mengubah tipe kolom dokumen pada tabel aktivitas ke JSONB.");
+        }
     } catch (e) {
         console.error("Error ensuring db init:", e);
     }
@@ -74,6 +102,42 @@ app.set('layout', 'layout');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+
+// Konfigurasi Multer untuk Upload Dokumen (Max 10MB)
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
+
+// Middleware Upload Helper to handle size limit nicely for multiple files
+const uploadMultiple = (req, res, next) => {
+    upload.array('dokumen')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).send('<script>alert("Ukuran salah satu file melebihi batas 10MB!"); window.history.back();</script>');
+            }
+            return res.status(400).send('<script>alert("Gagal mengunggah file: ' + err.message + '"); window.history.back();</script>');
+        } else if (err) {
+            return res.status(500).send('<script>alert("Terjadi kesalahan saat mengunggah file."); window.history.back();</script>');
+        }
+        next();
+    });
+};
 
 app.use(session({
     secret: 'mysecretkey123',
@@ -204,7 +268,7 @@ app.get('/aktivitas/add', requireAuth, (req, res) => {
     res.render('add_aktivitas');
 });
 
-app.post('/aktivitas', requireAuth, async (req, res) => {
+app.post('/aktivitas', requireAuth, uploadMultiple, async (req, res) => {
     try {
         if (req.body.action === 'add') {
             const actId = 'act_' + Math.random().toString(36).substr(2, 9);
@@ -212,20 +276,22 @@ app.post('/aktivitas', requireAuth, async (req, res) => {
                 nama_aktivitas, deskripsi, jenis_kolaborasi, aspek,
                 output, outcome, unit_internal, nama_mitra, jenis_mitra,
                 prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-                pola_integrasi, risiko, kontrol, status
+                pola_integrasi, risiko, kontrol, status, catatan
             } = req.body;
             
             const aspekArray = Array.isArray(aspek) ? aspek : (aspek ? [aspek] : []);
             const unitInternalArray = Array.isArray(unit_internal) ? unit_internal : (unit_internal ? [unit_internal] : []);
+            const filenames = req.files ? req.files.map(f => f.filename) : [];
 
             await pool.query(
                 `INSERT INTO aktivitas 
-                (id, nama_aktivitas, deskripsi, jenis_kolaborasi, aspek, output, outcome, unit_internal, nama_mitra, jenis_mitra, prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+                (id, nama_aktivitas, deskripsi, jenis_kolaborasi, aspek, output, outcome, unit_internal, nama_mitra, jenis_mitra, prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status, catatan, dokumen)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
                 [
                     actId, nama_aktivitas, deskripsi, jenis_kolaborasi, JSON.stringify(aspekArray),
                     output, outcome, JSON.stringify(unitInternalArray), nama_mitra, jenis_mitra, prediksi_pelaksanaan,
-                    target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status || 'Usulan'
+                    target_pelaksanaan, teknik_integrasi, pola_integrasi, risiko, kontrol, status || 'Usulan',
+                    catatan, JSON.stringify(filenames)
                 ]
             );
             res.redirect('/aktivitas?msg=success');
@@ -240,6 +306,27 @@ app.post('/aktivitas', requireAuth, async (req, res) => {
 
 app.get('/aktivitas/delete/:id', requireAuth, async (req, res) => {
     try {
+        const existingRes = await pool.query('SELECT dokumen FROM aktivitas WHERE id = $1', [req.params.id]);
+        if (existingRes.rows.length > 0 && existingRes.rows[0].dokumen) {
+            const docVal = existingRes.rows[0].dokumen;
+            let filesToDelete = [];
+            if (typeof docVal === 'string') {
+                if (docVal.startsWith('[')) {
+                    try { filesToDelete = JSON.parse(docVal); } catch(e) {}
+                } else {
+                    filesToDelete = [docVal];
+                }
+            } else if (Array.isArray(docVal)) {
+                filesToDelete = docVal;
+            }
+            
+            filesToDelete.forEach(filename => {
+                const filePath = path.join(uploadDir, filename);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            });
+        }
         await pool.query('DELETE FROM aktivitas WHERE id = $1', [req.params.id]);
         res.redirect('/aktivitas?msg=deleted');
     } catch (err) {
@@ -268,13 +355,13 @@ app.get('/aktivitas/edit/:id', requireAuth, async (req, res) => {
     }
 });
 
-app.post('/aktivitas/edit/:id', requireAuth, async (req, res) => {
+app.post('/aktivitas/edit/:id', requireAuth, uploadMultiple, async (req, res) => {
     try {
         const {
             nama_aktivitas, deskripsi, jenis_kolaborasi, aspek,
             output, outcome, unit_internal, nama_mitra, jenis_mitra,
             prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-            pola_integrasi, risiko, kontrol, status
+            pola_integrasi, risiko, kontrol, status, catatan, existing_dokumen
         } = req.body;
         
         let aspekArr = [];
@@ -287,18 +374,50 @@ app.post('/aktivitas/edit/:id', requireAuth, async (req, res) => {
             unitArr = Array.isArray(unit_internal) ? unit_internal : [unit_internal];
         }
 
+        const existingRes = await pool.query('SELECT dokumen FROM aktivitas WHERE id = $1', [req.params.id]);
+        
+        let oldDocs = [];
+        if (existingRes.rows.length > 0 && existingRes.rows[0].dokumen) {
+            const docVal = existingRes.rows[0].dokumen;
+            if (typeof docVal === 'string') {
+                if (docVal.startsWith('[')) {
+                    try { oldDocs = JSON.parse(docVal); } catch(e) {}
+                } else {
+                    oldDocs = [docVal];
+                }
+            } else if (Array.isArray(docVal)) {
+                oldDocs = docVal;
+            }
+        }
+
+        const keptDocs = existing_dokumen ? (Array.isArray(existing_dokumen) ? existing_dokumen : [existing_dokumen]) : [];
+
+        // Hapus file fisik dari folder upload jika dihapus oleh user
+        const deletedDocs = oldDocs.filter(d => !keptDocs.includes(d));
+        deletedDocs.forEach(d => {
+            const filePath = path.join(uploadDir, d);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        });
+
+        const newDocs = req.files ? req.files.map(f => f.filename) : [];
+        const finalDocs = [...keptDocs, ...newDocs];
+
         await pool.query(
             `UPDATE aktivitas SET 
                 nama_aktivitas = $1, deskripsi = $2, jenis_kolaborasi = $3, aspek = $4,
                 output = $5, outcome = $6, unit_internal = $7, nama_mitra = $8, jenis_mitra = $9,
                 prediksi_pelaksanaan = $10, target_pelaksanaan = $11, teknik_integrasi = $12,
-                pola_integrasi = $13, risiko = $14, kontrol = $15, status = $16
-            WHERE id = $17`,
+                pola_integrasi = $13, risiko = $14, kontrol = $15, status = $16,
+                catatan = $17, dokumen = $18
+            WHERE id = $19`,
             [
                 nama_aktivitas, deskripsi, jenis_kolaborasi, JSON.stringify(aspekArr),
                 output, outcome, JSON.stringify(unitArr), nama_mitra, jenis_mitra,
                 prediksi_pelaksanaan, target_pelaksanaan, teknik_integrasi,
-                pola_integrasi, risiko, kontrol, status || 'Usulan', req.params.id
+                pola_integrasi, risiko, kontrol, status || 'Usulan',
+                catatan, JSON.stringify(finalDocs), req.params.id
             ]
         );
         res.redirect('/aktivitas?msg=updated');
